@@ -23,12 +23,12 @@ augroup END
 " Choose template on file creation
 augroup choose-template-on-creation
 	autocmd!
-	autocmd BufNewFile /home/rayb/OneDrive/Documents/CompGramming/**.cpp execute "0r ~/OneDrive/Documents/CompGramming/Templates/".input("Template name: ").".cpp | $ | -2"
+	autocmd BufNewFile /home/rayb/OneDrive/Documents/CompGramming/**.cpp execute "0r ~/Documents/comp-programming/templates/".input("Template name: ").".cpp | $ | -2"
 augroup END
 
 " Insert code snippet
 function! InsertSnippet()
-	execute "r ~/OneDrive/Documents/CompGramming/Snippets/".input("Snippet name: ").".hpp"
+	execute "r ~/Documents/comp-programming/snippets/".input("Snippet name: ").".hpp"
 endfunction
 command! INS call InsertSnippet()
 
