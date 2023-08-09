@@ -122,6 +122,6 @@ void solve() {
 }
 
 int main() {
-	cin.tie(0)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	
 }
