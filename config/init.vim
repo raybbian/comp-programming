@@ -23,7 +23,7 @@ augroup END
 " Choose template on file creation
 augroup choose-template-on-creation
 	autocmd!
-	autocmd BufNewFile /home/rayb/OneDrive/Documents/CompGramming/**.cpp execute "0r ~/Documents/comp-programming/templates/".input("Template name: ").".cpp | $ | -2"
+	autocmd BufNewFile /home/rayb/Documents/comp-programming/**.cpp execute "0r ~/Documents/comp-programming/templates/".input("Template name: ").".cpp | $ | -2"
 augroup END
 
 " Insert code snippet
