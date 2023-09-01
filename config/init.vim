@@ -1,12 +1,27 @@
 call plug#begin()
 
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
-Plug 'jiangmiao/auto-pairs'
+
+Plug 'lervag/vimtex'
+let g:tex_flavor='latex'
+let g:vimtex_view_method='zathura'
+let g:vimtex_quickfix_mode=0
+
+Plug 'sirver/ultisnips'
+let g:UltiSnipsExpandTrigger = '<tab>'
+let g:UltiSnipsJumpForwardTrigger = '<tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+let g:UltiSnipsSnippetDirectories = ['/home/rayb/OneDrive/Documents/config/']
+
+Plug 'LunarWatcher/auto-pairs'
+let g:AutoPairsCompleteOnlyOnSpace=1
 
 call plug#end()
 
 set relativenumber
 set numberwidth=2
+set clipboard+=unnamedplus
+highlight clear Conceal
 
 " Remember cursor position
 augroup remember-cursor-position
