@@ -74,7 +74,7 @@ vector<pii> steps_diagonal = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 vector<pii> steps_8dirs = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
 #ifdef LOCAL
-#include "/home/rayb/OneDrive/Documents/CompGramming/Templates/debug.hpp"
+#include "/home/rayb/Documents/comp-programming/templates/debug.hpp"
 #define dbg(...) debug_first(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__, __VA_ARGS__)
 #else
 #define dbg(...) 42
