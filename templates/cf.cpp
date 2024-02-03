@@ -11,11 +11,6 @@ using pdd = pair<db, db>;
 #define fi first
 #define se second
 #define ln "\n"
-#define pb push_back
-#define pf push_front
-#define eb emplace_back
-#define ef emplace_front
-#define ins insert
 
 // n-dimensional vector
 template <typename T> vector<T> ndvec(size_t size, T initial_value) {
@@ -45,10 +40,9 @@ template <typename T> bool chk_max(T &a, const T &b) {
 }
 
 #ifdef LOCAL
-#include "/home/rayb/Documents/comp-programming/templates/debug.hpp"
+#include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
 #define dbg(...)                                                               \
-  debug_first(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__,      \
-              __VA_ARGS__)
+  Debug(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__, __VA_ARGS__)
 #else
 #define dbg(...) 42
 #endif
