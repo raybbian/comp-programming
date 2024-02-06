@@ -68,6 +68,7 @@ struct Debug {
   }
   template <typename T, typename U>
   void debug_print(const pair<T, U> &t, int depth, bool newline, bool last) {
+    (void)newline;
     cerr << depth_color(depth) << "(" << RESET;
     debug_print(t.fi, depth + 1, false, last);
     cerr << ": ";

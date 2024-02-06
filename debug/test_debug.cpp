@@ -87,7 +87,7 @@ vector<pii> steps_8dirs = {{1, 0}, {0, 1},  {-1, 0}, {0, -1},
 
 #ifdef LOCAL
 
-#include "/home/rayb/Documents/comp-programming/templates/debug.hpp"
+#include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
 
 #define dbg(...)                                                               \
   Debug(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__, __VA_ARGS__)
