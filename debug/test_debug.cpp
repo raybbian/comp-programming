@@ -86,9 +86,7 @@ vector<pii> steps_8dirs = {{1, 0}, {0, 1},  {-1, 0}, {0, -1},
                            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
 #ifdef LOCAL
-
 #include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
-
 #define dbg(...)                                                               \
   Debug(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__, __VA_ARGS__)
 #else
@@ -101,7 +99,7 @@ void solve() {}
 
 int main() {
   cin.tie(0)->sync_with_stdio(false);
-  array<int, 4> arr;
+  array<int, 15> arr;
   vector<int> vec;
   deque<int> deq;
   forward_list<int> fwl;
@@ -143,28 +141,33 @@ int main() {
     for (int j = 0; j < 5; j++) {
       srand(time(NULL));
       int y = rand() % 10 + 1;
-      temp.ins({{y, j}, "xd"});
+      temp.ins({{y, j}, "oogaboogalmaoxd"});
     }
     what.pb(temp);
   }
+  vector<int> infns(5, INT_MAX);
+  infns[3] = INT_MIN;
   dbg(arr, vec, deq, fwl, lst, st, q, pq, s, ms, mp, mmp, us, ums, ump, ummp);
-  dbg(what, "HI , ");
+  dbg(what, "HI , ", infns);
 
   int a = 5;
   int b = 8;
   tuple t = {1, 'a', 2.2f};
   pii pr = {2, 3};
-  int c[] = {1, 2, 3, 4, 5};
   string str = "THIS IS A STRING";
-  dbg(t, pr, c, c_div(a, b), a, b, "THIS IS SO HARWEHD", str);
+  dbg(t, pr, c_div(a, b), a, b, "THIS IS SO HARWEHD",
+      pair<string, int>{"LMLFAODAS", 0}, str);
 
-  auto dvec = ndvec<int>(10, 10, 10, -1);
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 10; j++) {
-      for (int k = 0; k < 10; k++) {
-        dvec[i][j][k] = i + j + k;
+  auto dvec =
+      ndvec<tuple<int, int, int>>(7, 7, 7, tuple<int, int, int>{0, 0, 0});
+  for (int i = 0; i < 7; i++) {
+    for (int j = 0; j < 7; j++) {
+      for (int k = 0; k < 7; k++) {
+        dvec[i][j][k] = tuple<int, int, int>{i, i + j, i + j + k};
       }
     }
   }
   dbg(dvec);
+  auto big_tup = make_tuple(t, pr, dvec);
+  dbg(big_tup);
 }
