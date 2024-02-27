@@ -49,24 +49,45 @@ template <typename T> bool chk_max(T &a, const T &b) {
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+  int n;
+  cin >> n;
+  vector<ll> a(n);
+  int one_cnt = 0;
+  for (int i = 0; i < n; i++) {
+    cin >> a[i];
+    one_cnt += (a[i] == 1);
+  }
+  if (one_cnt >= 2) {
+    cout << "NO\n";
+    return;
+  }
+  if (one_cnt == 1) {
+    cout << "YES\n";
+    return;
+  }
+  // no ones
+  sort(a.begin(), a.end());
+  if (a[0] != a[1]) {
+    cout << "YES\n";
+    return;
+  }
 
-int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+  for (int i = 1; i < n; i++) {
+    if (a[i] % a[0] != 0) {
+      cout << "YES\n";
+      return;
+    }
+  }
+
+  cout << "NO\n";
+  return;
 }
 
-/*
- * SANITY CHECKLIST:
- * 1. re-read the problem
- * 2. consider edge cases (n=1, overflow)
- * 3. come up with counter cases
- * 4. move on to the next problem
- * 5. re-read the problem
- * 6. re-read the problem upside-down
- * 7. re-read the problem backwords
- * 8. fucking re-read the problem
- */
+signed main() {
+  cin.tie(nullptr)->sync_with_stdio(false);
+  ll t;
+  cin >> t;
+  while (t--)
+    solve();
+}

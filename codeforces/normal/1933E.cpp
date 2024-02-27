@@ -47,26 +47,68 @@ template <typename T> bool chk_max(T &a, const T &b) {
 #define dbg(...) 42
 #endif
 
-// insert snippets below:
+// insert snippets below
 
-void solve() {}
+// binary search
+template <typename T, typename U> T last_true(T l, T r, U f) {
+  l--;
+  assert(l <= r);
+  while (l < r) {
+    T mid = l + (r - l + 1) / 2;
+    f(mid) ? l = mid : r = mid - 1;
+  }
+  return l;
+}
+template <typename T, typename U> T first_true(T l, T r, U f) {
+  r++;
+  assert(l <= r);
+  while (l < r) {
+    T mid = l + (r - l) / 2;
+    f(mid) ? r = mid : l = mid + 1;
+  }
+  return l;
+}
+void solve() {
+  int n;
+  cin >> n;
+  vector<ll> a(n + 1), pref(n + 1);
+  for (int i = 1; i <= n; i++) {
+    cin >> a[i];
+    pref[i] = pref[i - 1] + a[i];
+  }
 
-int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+  int q;
+  cin >> q;
+  while (q--) {
+    int l, u;
+    cin >> l >> u;
+    auto ok = [&](int r) -> bool {
+      ll p_segs = pref[r - 1] - pref[l - 1];
+      ll p_gain = u * p_segs;
+      ll p_loss = (p_segs - 1) * (p_segs) / 2;
+
+      ll c_gain = u * (p_segs + a[r]);
+      ll c_loss = (p_segs + a[r] - 1) * (p_segs + a[r]) / 2;
+      dbg(l, r, u, c_gain, c_loss, p_gain, p_loss);
+      if (c_gain - c_loss < 0)
+        return false;
+      return c_gain - c_loss > p_gain - p_loss;
+    };
+
+    ll ans = last_true(l, n, ok);
+    if (ans == l - 1) {
+      cout << l << " ";
+    } else {
+      cout << ans << " ";
+    }
+  }
+  cout << "\n";
 }
 
-/*
- * SANITY CHECKLIST:
- * 1. re-read the problem
- * 2. consider edge cases (n=1, overflow)
- * 3. come up with counter cases
- * 4. move on to the next problem
- * 5. re-read the problem
- * 6. re-read the problem upside-down
- * 7. re-read the problem backwords
- * 8. fucking re-read the problem
- */
+signed main() {
+  cin.tie(nullptr)->sync_with_stdio(false);
+  ll t;
+  cin >> t;
+  while (t--)
+    solve();
+}

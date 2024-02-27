@@ -48,25 +48,46 @@ template <typename T> bool chk_max(T &a, const T &b) {
 #endif
 
 // insert snippets below:
+#define int long long
 
-void solve() {}
+void solve() {
+  int a, b, l;
+  cin >> a >> b >> l;
 
-int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+  int a_cnt = 0, b_cnt = 0;
+  int templ = l;
+  while (templ % a == 0 && templ > 0) {
+    templ /= a;
+    a_cnt++;
+  }
+  templ = l;
+  while (templ % b == 0 && templ > 0) {
+    templ /= b;
+    b_cnt++;
+  }
+
+  dbg(a_cnt, b_cnt);
+
+  set<int> ans;
+  int testa = 1;
+  for (int i = 0; i <= a_cnt; i++) {
+    int testb = 1;
+    for (int j = 0; j <= b_cnt; j++) {
+      if (l % (testa * testb) == 0) {
+        ans.insert(l / (testa * testb));
+      }
+      testb *= b;
+    }
+    testa *= a;
+  }
+
+  cout << ans.size() << "\n";
 }
 
-/*
- * SANITY CHECKLIST:
- * 1. re-read the problem
- * 2. consider edge cases (n=1, overflow)
- * 3. come up with counter cases
- * 4. move on to the next problem
- * 5. re-read the problem
- * 6. re-read the problem upside-down
- * 7. re-read the problem backwords
- * 8. fucking re-read the problem
- */
+signed main() {
+  cin.tie(nullptr)->sync_with_stdio(false);
+  int t;
+  cin >> t;
+  while (t--)
+    solve();
+}

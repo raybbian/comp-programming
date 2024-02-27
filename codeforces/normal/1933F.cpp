@@ -48,25 +48,55 @@ template <typename T> bool chk_max(T &a, const T &b) {
 #endif
 
 // insert snippets below:
+vector<pii> nxt = {{-1, 0}, {1, 0}, {0, 1}};
 
-void solve() {}
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> a(n, vector<int>(m));
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      cin >> a[i][j];
+    }
+  }
+
+  auto v = ndvec<bool>(n, m, n, false);
+  queue<tuple<int, int, int>> q;
+  q.push({0, 0, 0});
+  v[0][0][0] = true;
+  auto par = ndvec<pii>(n, m, pii{-1, -1});
+  while (!q.empty()) {
+    auto &[r, c, time] = q.front();
+    q.pop();
+
+    if (r == n - 1 && c == m - 1) {
+      cout << time << "\n";
+      return;
+    }
+
+    for (auto &i : nxt) {
+      int new_r = (r + i.fi + n) % n;
+      int new_c = (c + i.se + m) % m;
+      if (v[new_r][new_c][(time + 1) % n])
+        continue;
+      if (a[(new_r + time + 1) % n][new_c])
+        continue;
+      if (i.fi == 1 && a[(r + time + 1) % n][new_c])
+        continue;
+
+      v[new_r][new_c][(time + 1) % n] = true;
+      q.push({new_r, new_c, time + 1});
+    }
+  }
+
+  cout << -1 << "\n";
+  return;
+}
 
 int main() {
   cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+  int t;
+  cin >> t;
+  while (t--)
+    solve();
 }
-
-/*
- * SANITY CHECKLIST:
- * 1. re-read the problem
- * 2. consider edge cases (n=1, overflow)
- * 3. come up with counter cases
- * 4. move on to the next problem
- * 5. re-read the problem
- * 6. re-read the problem upside-down
- * 7. re-read the problem backwords
- * 8. fucking re-read the problem
- */

@@ -49,24 +49,34 @@ template <typename T> bool chk_max(T &a, const T &b) {
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+  int n;
+  cin >> n;
+  vector<int> a(n);
+  ll sum = 0;
+  vector<bool> has(3);
+
+  for (int i = 0; i < n; i++) {
+    cin >> a[i];
+    sum += a[i];
+    has[a[i] % 3] = true;
+  }
+  dbg(has);
+  if (sum % 3 == 0) {
+    cout << 0 << "\n";
+  } else if (has[sum % 3]) {
+    cout << 1 << "\n";
+  } else if (sum % 3 == 2) {
+    cout << 1 << "\n";
+  } else {
+    cout << 2 << "\n";
+  }
+}
 
 int main() {
   cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+  int t;
+  cin >> t;
+  while (t--)
+    solve();
 }
-
-/*
- * SANITY CHECKLIST:
- * 1. re-read the problem
- * 2. consider edge cases (n=1, overflow)
- * 3. come up with counter cases
- * 4. move on to the next problem
- * 5. re-read the problem
- * 6. re-read the problem upside-down
- * 7. re-read the problem backwords
- * 8. fucking re-read the problem
- */
