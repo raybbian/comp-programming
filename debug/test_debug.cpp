@@ -158,16 +158,6 @@ int main() {
   dbg(t, pr, c_div(a, b), a, b, "THIS IS SO HARWEHD",
       pair<string, int>{"LMLFAODAS", 0}, str);
 
-  auto dvec =
-      ndvec<tuple<int, int, int>>(7, 7, 7, tuple<int, int, int>{0, 0, 0});
-  for (int i = 0; i < 7; i++) {
-    for (int j = 0; j < 7; j++) {
-      for (int k = 0; k < 7; k++) {
-        dvec[i][j][k] = tuple<int, int, int>{i, i + j, i + j + k};
-      }
-    }
-  }
-  dbg(dvec);
-  auto big_tup = make_tuple(t, pr, dvec);
+  auto big_tup = make_tuple(t, pr, a);
   dbg(big_tup);
 }

@@ -45,21 +45,12 @@ concept printable = requires(T &t) {
 template <typename E> struct DebugSingle {
   int start_row;
   bool last;
-  int phase = 0;
-
-  int max_depth = 0;
-  int grid_display = 0;
-  int column_ptr = 0;
-  unordered_map<int, int> max_len_per_column;
 
   DebugSingle(E data, int start_row, bool last)
       : start_row(start_row), last(last) {
-    traverse(data, 0, false); // get max_depth and grid_display dimensions
-    phase++;
-    traverse(data, 0, false); // get num columns and max_variable_len per column
-    phase++;
-    traverse(data, 0, false); // print
+    traverse(data, 0, false);
     cerr << "\n";
+    cerr.flush();
   }
 
   void initialize_line(int depth) {
@@ -96,17 +87,17 @@ template <typename E> struct DebugSingle {
     requires(!is_arithmetic<T>::value)
   {
     (void)nl;
-    if (phase == 0) {
-      max_depth = max(max_depth, depth);
-    } else if (phase == 1) {
-      max_len_per_column[column_ptr] =
-          max(max_len_per_column[column_ptr], get_size(t));
-      column_ptr++;
-    } else if (phase == 2) {
-      cerr << BOLDWHITE
-           << setw(grid_display ? max_len_per_column[column_ptr] : 0) << t
-           << RESET;
-      column_ptr++;
+    (void)depth;
+    cerr << BOLDWHITE << t << RESET;
+  }
+
+  void traverse(bool t, int depth, bool nl) {
+    (void)nl;
+    (void)depth;
+    if (t) {
+      cerr << BOLDGREEN << 'T' << RESET;
+    } else {
+      cerr << BOLDRED << 'F' << RESET;
     }
   }
 
@@ -115,77 +106,37 @@ template <typename E> struct DebugSingle {
     requires(is_arithmetic<T>::value)
   {
     (void)nl;
-    if (phase == 0) {
-      max_depth = max(max_depth, depth);
-    } else if (phase == 1) {
-      max_len_per_column[column_ptr] =
-          max(max_len_per_column[column_ptr], get_size(t));
-      column_ptr++;
-    } else if (phase == 2) {
-      if (t == numeric_limits<T>::max())
-        cerr << BOLDWHITE
-             << setw(grid_display ? max_len_per_column[column_ptr] : 0) << "inf"
-             << RESET;
-      else if (t == numeric_limits<T>::min())
-        cerr << BOLDWHITE
-             << setw(grid_display ? max_len_per_column[column_ptr] : 0)
-             << "-inf" << RESET;
-      else
-        cerr << BOLDWHITE
-             << setw(grid_display ? max_len_per_column[column_ptr] : 0) << t
-             << RESET;
-      column_ptr++;
-    }
+    (void)depth;
+    if (t == numeric_limits<T>::max())
+      cerr << BOLDWHITE "inf" << RESET;
+    else if (t == numeric_limits<T>::min())
+      cerr << BOLDWHITE << "-inf" << RESET;
+    else
+      cerr << BOLDWHITE << t << RESET;
   }
 
   void traverse(const char *t, int depth, bool nl) {
     (void)nl;
-    if (phase == 0) {
-      max_depth = max(max_depth, depth);
-    } else if (phase == 1) {
-      max_len_per_column[column_ptr] =
-          max(max_len_per_column[column_ptr], (int)strlen(t));
-      column_ptr++;
-    } else if (phase == 2) {
-      string s = '"' + string(t) + '"';
-      cerr << BOLDMAGENTA
-           << setw(grid_display ? max_len_per_column[column_ptr] : 0) << s
-           << RESET;
-      column_ptr++;
-    }
+    (void)depth;
+    string s = '"' + string(t) + '"';
+    cerr << BOLDMAGENTA << s << RESET;
   }
 
   void traverse(const string &t, int depth, bool nl) {
     (void)nl;
-    if (phase == 0) {
-      max_depth = max(max_depth, depth);
-    } else if (phase == 1) {
-      max_len_per_column[column_ptr] =
-          max(max_len_per_column[column_ptr], (int)t.length());
-      column_ptr++;
-    } else if (phase == 2) {
-      string s = '"' + t + '"';
-      cerr << BOLDMAGENTA
-           << setw(grid_display ? max_len_per_column[column_ptr] : 0) << s
-           << RESET;
-      column_ptr++;
-    }
+    (void)depth;
+    string s = '"' + t + '"';
+    cerr << BOLDMAGENTA << s << RESET;
   }
 
   template <typename T, typename U>
   void traverse(const pair<T, U> &t, int depth, bool nl) {
     (void)nl;
-    if (phase == 2) {
-      cerr << depth_color(depth) << "(" << RESET;
-    }
+    cerr << depth_color(depth) << "(" << RESET;
     traverse(t.fi, depth + 1, false);
-    if (phase == 2) {
-      cerr << ": ";
-    }
+    cerr << ": ";
     traverse(t.se, depth + 1, true);
-    if (phase == 2) {
-      cerr << depth_color(depth) << ")" << RESET;
-    }
+    cerr << depth_color(depth) << ")" << RESET;
   }
 
   template <typename... T>
@@ -193,24 +144,17 @@ template <typename E> struct DebugSingle {
     (void)nl;
     int n = 0;
     auto handle_sep = [&](auto &&arg) {
-      if (phase == 2 && n) {
+      if (n)
         cerr << " ";
-      }
       traverse(arg, depth + 1, n);
-      if (phase == 2) {
-        print_subscript(n, depth, n);
-      }
+      print_subscript(n, depth, n);
       n++;
     };
     apply(
         [&](auto &&...args) {
-          if (phase == 2) {
-            cerr << depth_color(depth) << "(" << RESET;
-          }
+          cerr << depth_color(depth) << "(" << RESET;
           ((handle_sep(args)), ...);
-          if (phase == 2) {
-            cerr << depth_color(depth) << ")" << RESET;
-          }
+          cerr << depth_color(depth) << ")" << RESET;
         },
         t);
   }
@@ -245,31 +189,18 @@ template <typename E> struct DebugSingle {
   }
 
   template <ranges::range T> void traverse(const T &t, int depth, bool nl) {
-    if (phase == 0) {
-      grid_display = max(grid_display, depth);
-    }
-    if (phase >= 1) {
-      column_ptr = 0;
-    }
-    if (phase == 2) {
-      if (nl)
-        initialize_line(depth);
-      cerr << depth_color(depth) << "[" << RESET;
-    }
+    if (nl)
+      initialize_line(depth);
+    cerr << depth_color(depth) << "[" << RESET;
     int n = 0;
     for (const auto &i : t) {
-      if (phase == 2 && n) {
+      if (n)
         cerr << " ";
-      }
       traverse(i, depth + 1, n);
-      if (phase == 2) {
-        print_subscript(n, depth);
-      }
+      print_subscript(n, depth);
       n++;
     }
-    if (phase == 2) {
-      cerr << depth_color(depth) << "]" << RESET;
-    }
+    cerr << depth_color(depth) << "]" << RESET;
   }
 };
 
