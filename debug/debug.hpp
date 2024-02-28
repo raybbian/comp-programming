@@ -59,29 +59,6 @@ template <typename E> struct DebugSingle {
   }
 
   template <printable T>
-  int get_size(T t)
-    requires(!is_arithmetic<T>::value)
-  {
-    stringstream os;
-    os << t;
-    return os.str().size();
-  }
-
-  template <printable T>
-  int get_size(T t)
-    requires(is_arithmetic<T>::value)
-  {
-    stringstream os;
-    if (t == numeric_limits<T>::max())
-      os << "inf";
-    else if (t == numeric_limits<T>::min())
-      os << "-inf";
-    else
-      os << t;
-    return os.str().size();
-  }
-
-  template <printable T>
   void traverse(const T &t, int depth, bool nl)
     requires(!is_arithmetic<T>::value)
   {
@@ -227,18 +204,17 @@ struct Debug {
   }
 
   template <typename... T>
-  Debug(const char *s, const int sz, const int line, const string &func,
-        T &&...t) {
+  Debug(const char *s, const int line, const string &func, T &&...t) {
     // parse the arguments
     string name;
     int paren_cnt = 0;
     bool is_quote = false;
-    for (int i = 0; i < sz - 1; i++) {
+    for (int i = 0; s[i] != '\0'; i++) {
       if (s[i] == ',' && !paren_cnt && !is_quote) {
         variable_names.push(name);
         max_name_len = max(max_name_len, (int)name.length());
         name = "";
-        if (i < sz - 2 && s[i + 1] == ' ')
+        while (s[i + 1] == ' ')
           i++;
       } else {
         switch (s[i]) {

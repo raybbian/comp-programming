@@ -41,8 +41,7 @@ template <typename T> bool chk_max(T &a, const T &b) {
 
 #ifdef LOCAL
 #include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
-#define dbg(...)                                                               \
-  Debug(#__VA_ARGS__, sizeof(#__VA_ARGS__), __LINE__, __FUNCTION__, __VA_ARGS__)
+#define dbg(...) Debug(#__VA_ARGS__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #else
 #define dbg(...) 42
 #endif
