@@ -14,30 +14,24 @@ using pdd = pair<db, db>;
 
 // n-dimensional vector
 template <typename T> vector<T> ndvec(size_t size, T initial_value) {
-  return vector<T>(size, initial_value);
+    return vector<T>(size, initial_value);
 }
 template <typename T, typename... U> auto ndvec(size_t head, U &&...u) {
-  auto inner = ndvec<T>(u...);
-  return vector<decltype(inner)>(head, inner);
+    auto inner = ndvec<T>(u...);
+    return vector<decltype(inner)>(head, inner);
 }
 
 // bitwise ops
-constexpr int popcnt(int x) { return __builtin_popcount(x); } // # of bits set
-constexpr int bits(int x) {
-  return x == 0 ? 0 : 31 - __builtin_clz(x);
-} // floor(log2(x))
+constexpr int popcnt(int x) { return __builtin_popcount(x); }            // # of bits set
+constexpr int bits(int x) { return x == 0 ? 0 : 31 - __builtin_clz(x); } // floor(log2(x))
 
 // better math
 ll c_div(ll a, ll b) { return a / b + ((a ^ b) > 0 && a % b); }
 ll f_div(ll a, ll b) { return a / b - ((a ^ b) < 0 && a % b); }
 
 // check and assign max and min
-template <typename T> bool chk_min(T &a, const T &b) {
-  return b < a ? a = b, 1 : 0;
-}
-template <typename T> bool chk_max(T &a, const T &b) {
-  return a < b ? a = b, 1 : 0;
-}
+template <typename T> bool chk_min(T &a, const T &b) { return b < a ? a = b, 1 : 0; }
+template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 : 0; }
 
 #ifdef LOCAL
 #include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
@@ -51,14 +45,16 @@ template <typename T> bool chk_max(T &a, const T &b) {
 void solve() {}
 
 int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  // int t;
-  // cin >> t;
-  // while (t--)
-  //   solve();
+    cin.tie(nullptr)->sync_with_stdio(false);
+    // int t;
+    // cin >> t;
+    // while (t--)
+    //     solve();
 }
 
 /*
+ * Don't forget to use rep, per, each!
+ *
  * SANITY CHECKLIST:
  * 1. re-read the problem
  * 2. consider edge cases (n=1, overflow)
