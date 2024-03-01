@@ -42,14 +42,37 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+    int n;
+    cin >> n;
+    vector<ll> dp(101, INT_MAX);
+    vector<ll> coins = {1, 3, 6, 10, 15};
+    dp[0] = 0;
+    for (int i = 0; i <= 100; i++) {
+        for (auto &c : coins) {
+            if (i - c >= 0) {
+                dp[i] = min(dp[i], dp[i - c] + 1);
+            }
+        }
+    }
+
+    if (n <= 100) {
+        cout << dp[n] << "\n";
+    } else {
+        ll ans = 0;
+        ans += n / 15 - 5;
+        n %= 15;
+        n += 15 * 5;
+        cout << ans + dp[n] << "\n";
+    }
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*

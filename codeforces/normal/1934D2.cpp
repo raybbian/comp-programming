@@ -24,6 +24,7 @@ template <typename T, typename... U> auto ndvec(size_t head, U &&...u) {
 // bitwise ops
 constexpr int popcnt(int x) { return __builtin_popcount(x); }            // # of bits set
 constexpr int bits(int x) { return x == 0 ? 0 : 31 - __builtin_clz(x); } // floor(log2(x))
+constexpr int bitsll(ll x) { return x == 0 ? 0 : 63 - __builtin_clzll(x); }
 
 // better math
 ll c_div(ll a, ll b) { return a / b + ((a ^ b) > 0 && a % b); }
@@ -42,14 +43,64 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+    ll n;
+    cin >> n;
+    ll a = n, b = n;
+
+    ll bits = __builtin_popcountll(n);
+    // what if 2 bits? -> first, 1 1 win
+    // what if 3 bits? -> go second, actually, bob split 1, 2, you go 1 1
+    // what if 4 bits? -> first, 3 1 win
+    // what if 5 bits? -> go second, bob goes 1 4 or 2 3, you win
+    // what if 6 bits? -> first, 5 1 win
+
+    if (bits % 2 == 0) {
+        cout << "first\n";
+        cout.flush();
+    } else {
+        cout << "second\n";
+        cout.flush();
+        cin >> a >> b;
+        if ((a == 0 && b == 0) || (a == -1 && b == -1))
+            return;
+    }
+
+    while (true) {
+        // make choice between a, b
+        // choose one with even bits, make both odd
+        ll a_bit = __builtin_popcountll(a);
+        ll b_bit = __builtin_popcountll(b);
+        ll cur = -1;
+        if (a_bit == 1 && b_bit == 1) {
+            cout << "0 0\n";
+            cout.flush();
+        }
+
+        if (a_bit % 2 == 0) {
+            cur = a;
+        } else {
+            assert(b_bit % 2 == 0);
+            cur = b;
+        }
+        // guarantee that cur has even bits, split into 1, odd
+
+        ll mask = (1LL << bitsll(cur));
+        cout << (cur & mask) << " " << (cur & ~mask) << "\n";
+        cout.flush();
+
+        cin >> a >> b;
+        if ((a == 0 && b == 0) || (a == -1 && b == -1))
+            return;
+    }
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*

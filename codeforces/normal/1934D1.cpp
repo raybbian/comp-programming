@@ -42,14 +42,80 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+    if (n < m) {
+        cout << -1 << "\n";
+        return;
+    }
+    ll max_bits = n == 0 ? 0 : 63 - __builtin_clzll(n); // 0ind bits
+
+    vector<ll> inc, dec, out; // stores indices where need decrease
+    for (ll i = 0; i < 64; i++) {
+        ll mask = (1LL << i);
+        if ((n & mask) > (m & mask)) {
+            dec.push_back(i);
+        } else if ((n & mask) < (m & mask)) {
+            inc.push_back(i);
+        }
+    }
+
+    out.push_back(n);
+    if ((!inc.empty()) && (dec.empty() || dec.back() < inc.back())) {
+        cout << -1 << "\n";
+        return;
+    }
+
+    if ((!inc.empty()) && dec.back() == max_bits) {
+        bool ok = false;
+        for (ll i = dec.back() - 1; i > inc.back(); i--) {
+            // must be 1 in n between these two to swap
+            ll mask = (1LL << i);
+            if ((n & mask) != 0) {
+                ok = true;
+                break;
+            }
+        }
+        if (!ok) {
+            cout << -1 << "\n";
+            return;
+        }
+    }
+
+    ll y = (1LL << dec.back());
+    for (auto &i : inc) {
+        y += (1LL << i);
+    }
+
+    assert(y < n);
+    assert((n ^ y) < n);
+    n ^= y;
+    out.push_back(n);
+    dec.pop_back();
+
+    while (!dec.empty()) {
+        ll ind = dec.back();
+        dec.pop_back();
+        ll y = (1LL << ind);
+        assert(y < n);
+        assert((n ^ y) < n);
+        n ^= y;
+        out.push_back(n);
+    }
+
+    cout << out.size() - 1 << "\n";
+    for (int i = 0; i < (int)out.size(); i++) {
+        cout << out[i] << " \n"[i == (int)out.size() - 1];
+    }
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*
