@@ -12,6 +12,13 @@ using pdd = pair<db, db>;
 #define se second
 #define ln "\n"
 
+// loops
+#define REP2(i, n) for (int i = 0; i < (n); i++)
+#define REP3(i, a, b) for (int i = (a); (a) <= (b) ? i <= (b) : i >= (a); (a) <= (b) ? i++ : i--)
+#define GET_MACRO(a, b, c, d, ...) d
+#define rep(...) GET_MACRO(__VA_ARGS__, REP3, REP2)(__VA_ARGS__)
+#define each(i, a) for (auto &i : (a))
+
 // n-dimensional vector
 template <typename T> vector<T> ndvec(size_t size, T initial_value) {
     return vector<T>(size, initial_value);
