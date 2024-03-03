@@ -142,7 +142,8 @@ template <typename E> struct DebugSingle {
         traverse(converted, depth, nl);
     }
 
-    template <typename T> void traverse(priority_queue<T> t, int depth, bool nl) {
+    template <typename T, typename U, typename V>
+    void traverse(priority_queue<T, U, V> t, int depth, bool nl) {
         // do not pass by reference!!
         vector<T> converted;
         while (!t.empty()) {
