@@ -52,28 +52,77 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
-vector<ll> pre(12), fact(12);
-
 void solve() {
-    ll n;
-    cin >> n;
+    int q, a0, c0;
+    cin >> q >> a0 >> c0;
+    vector<array<ll, 2>> cost(q + 1);
+    vector<int> height(q + 1);
+    int msb = bits(q);
+    vector<vector<int>> up(q + 1, vector<int>(msb + 1));
+
+    cost[0] = {a0, c0};
+    up[0][0] = 0;
+    height[0] = 0;
+
+    rep(i, 1, q) {
+        int type;
+        cin >> type;
+        if (type == 1) {
+            int p, a, c;
+            cin >> p >> a >> c;
+            cost[i] = {a, c};
+            up[i][0] = p;
+            height[i] = height[p] + 1;
+            rep(j, 1, msb) { up[i][j] = up[up[i][j - 1]][j - 1]; }
+        } else {
+            int v;
+            ll w;
+            cin >> v >> w;
+            ll _w = w;
+            int ori_v = v;
+
+            per(j, msb, 0) {
+                // if not 0, go up
+                if (cost[up[v][j]][0] > 0) {
+                    v = up[v][j];
+                }
+            }
+
+            dbg(v);
+            ll money = 0;
+            while (w > 0) {
+                ll amt = min(w, cost[v][0]);
+                if (amt == 0)
+                    break;
+                w -= amt;
+                cost[v][0] -= amt;
+                money += amt * cost[v][1];
+
+                dbg(v);
+
+                // move v = next v down
+                int _v = ori_v;
+                per(j, msb, 0) {
+                    if (height[up[_v][j]] > height[v]) {
+                        _v = up[_v][j];
+                    }
+                }
+                v = _v;
+                dbg(v);
+            }
+
+            cout << _w - w << " " << money << "\n";
+            cout.flush();
+        }
+    }
 }
 
-int main() {
+signed main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-
-    fact[0] = 1;
-    rep(i, 1, 11) {
-        fact[i] = fact[i - 1] * i;
-        pre[i] = fact[i] / (2 * fact[i - 2]);
-    }
-
-    dbg(pre);
-
-    int t;
-    cin >> t;
-    while (t--)
-        solve();
+    // int t;
+    // cin >> t;
+    // while (t--)
+    solve();
 }
 
 /*
