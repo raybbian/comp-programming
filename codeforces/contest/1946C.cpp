@@ -51,15 +51,67 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 #endif
 
 // insert snippets below:
+// binary search
+template <typename T, typename U> T last_true(T l, T r, U f) {
+    l--;
+    assert(l <= r);
+    while (l < r) {
+        T mid = l + (r - l + 1) / 2;
+        f(mid) ? l = mid : r = mid - 1;
+    }
+    return l;
+}
+template <typename T, typename U> T first_true(T l, T r, U f) {
+    r++;
+    assert(l <= r);
+    while (l < r) {
+        T mid = l + (r - l) / 2;
+        f(mid) ? r = mid : l = mid + 1;
+    }
+    return l;
+}
 
-void solve() {}
+void solve() {
+    int n, k;
+    cin >> n >> k;
+    vector<vector<int>> adj(n + 1);
+    rep(i, n - 1) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    auto ok = [&](int x) -> bool {
+        int moves = 0;
+        auto dfs = [&](int node, int par, auto &&dfs) -> int {
+            int amt = 0;
+            each(next, adj[node]) {
+                if (next == par)
+                    continue;
+                amt += dfs(next, node, dfs);
+            }
+            amt++;
+            if (amt >= x && moves < k) {
+                moves++;
+                dbg("cut above", node);
+                return 0;
+            }
+            return amt;
+        };
+        int last = dfs(1, 0, dfs);
+        return last >= x;
+    };
+
+    cout << last_true(1, n, ok) << ln;
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*

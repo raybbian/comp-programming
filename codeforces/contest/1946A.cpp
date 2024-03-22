@@ -52,14 +52,34 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
-void solve() {}
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a(n + 1);
+    rep(i, 1, n) { cin >> a[i]; }
+    if (n == 1) {
+        cout << 1 << ln;
+        return;
+    }
+    sort(a.begin(), a.end());
+    int mid = c_div(n, 2);
+    int cnt = 0;
+    rep(i, c_div(n, 2), n - 1) {
+        cnt++;
+        if (a[i] != a[i + 1]) {
+            cout << cnt << ln;
+            return;
+        }
+    }
+    cout << n - mid + 1 << ln;
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*

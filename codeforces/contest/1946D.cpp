@@ -51,15 +51,58 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 #endif
 
 // insert snippets below:
+// binary search
+template <typename T, typename U> T last_true(T l, T r, U f) {
+    l--;
+    assert(l <= r);
+    while (l < r) {
+        T mid = l + (r - l + 1) / 2;
+        f(mid) ? l = mid : r = mid - 1;
+    }
+    return l;
+}
+template <typename T, typename U> T first_true(T l, T r, U f) {
+    r++;
+    assert(l <= r);
+    while (l < r) {
+        T mid = l + (r - l) / 2;
+        f(mid) ? r = mid : l = mid + 1;
+    }
+    return l;
+}
 
-void solve() {}
+void solve() {
+    int n, x;
+    cin >> n >> x;
+    vector<int> a(n + 1);
+    rep(i, 1, n) {
+        cin >> a[i];
+        a[i] ^= a[i - 1];
+    }
+    x++;
+    int ans = -1;
+    rep(i, 0, 30) {
+        int goal = x ^ (1 << i);
+        goal |= (1 << i) - 1;
+        if (x & (1 << i) && (a[n] & goal) == a[n]) {
+            dbg(bitset<32>(x - 1), bitset<32>(goal));
+            int cur = 0;
+            rep(j, 1, n) {
+                if ((a[j] & goal) == a[j])
+                    cur++;
+            }
+            ans = max(ans, cur);
+        }
+    }
+    cout << ans << ln;
+}
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    // int t;
-    // cin >> t;
-    // while (t--)
-    //     solve();
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
 }
 
 /*
