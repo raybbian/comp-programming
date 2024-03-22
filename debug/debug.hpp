@@ -109,7 +109,7 @@ template <typename E> struct DebugSingle {
         cerr << depth_color(depth) << "(" << RESET;
         traverse(t.fi, depth + 1, false);
         cerr << ": ";
-        traverse(t.se, depth + 1, true);
+        traverse(t.se, depth + 1, false);
         cerr << depth_color(depth) << ")" << RESET;
     }
 
