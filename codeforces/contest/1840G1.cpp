@@ -52,23 +52,45 @@ template <typename T> bool chk_max(T &a, const T &b) { return a < b ? a = b, 1 :
 
 // insert snippets below:
 
+int ask(int k, bool clockwise) {
+	cout << (clockwise ? "+ " : "- ") << k << ln;
+	cout.flush();
+	int resp;
+	cin >> resp;
+	return resp;
+}
+
+
 void solve() {
-	int n;
-	cin >> n;
-	vector<ll> a(n + 1), pref(n + 1);
-	rep(i, 1, n) {
-		cin >> a[i];
-		pref[i] = a[i] + pref[i - 1];
+	int x;
+	cin >> x;
+	unordered_map<int, int> store;
+	rep(i, 1, 1000) {
+		int test = ask(1, true);
+		if (store.count(test)) {
+			cout << "! " << i - store[test] << ln;
+			cout.flush();
+			return;
+		}
+		store[test] = i;
 	}
-	cout << *max_element(pref.begin(), pref.end()) - *min_element(pref.begin(), pref.end()) << ln;
+	ask(1000, false);
+	rep(i, 1, 1000) {
+		int test = ask(1000, false);
+		if (store.count(test)) {
+			cout << "! " << store[test] + i * 1000 << ln;
+			cout.flush();
+			return;
+		}
+	}
 }
 
 int main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    int t;
-    cin >> t;
-    while (t--)
-        solve();
+    // int t;
+    // cin >> t;
+    // while (t--)
+	solve();
 }
 
 /*
