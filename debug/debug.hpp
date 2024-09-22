@@ -48,7 +48,6 @@ template <typename E> struct DebugSingle {
     DebugSingle(E data, int start_row, bool last) : start_row(start_row), last(last) {
         traverse(data, 0, false);
         cerr << "\n";
-        cerr.flush();
     }
 
     void initialize_line(int depth) {
@@ -240,5 +239,6 @@ struct Debug {
         cerr << RED << "Debug at line " << BOLDRED << line << RESET << RED << " in function "
              << BOLDRED << func << RESET << RED << ": " << RESET << '\n';
         debug(t...);
+        cerr.flush();
     }
 };
