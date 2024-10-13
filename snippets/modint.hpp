@@ -1,84 +1,63 @@
-template <typename T> constexpr T power(T a, ll b) {
-    T res = 1;
-    for (; b; b /= 2, a *= a) {
-        if (b % 2)
-            res *= a;
-    }
-    return res;
-}
+/**
+ * Description: Mod integer class for doing modular arithmetic.
+ * Source: https://github.com/jakobkogler/Algorithm-DataStructures/blob/master/Math/Modular.h
+ * Verification: https://open.kattis.com/problems/modulararithmetic
+ * Time: fast
+ */
 
-template <int P> struct MInt {
-    int x;
-    constexpr MInt() : x{} {}
-    constexpr MInt(ll x) : x{norm(x % P)} {}
-
-    constexpr int norm(int x) const {
-        if (x < 0) {
-            x += P;
+template <int MOD> struct ModInt {
+    long long v;
+    ModInt(long long _v = 0) {
+        v = (-MOD < _v && _v < MOD) ? _v : _v % MOD;
+        if (v < 0)
+            v += MOD;
+    }
+    ModInt &operator+=(const ModInt &other) {
+        v += other.v;
+        if (v >= MOD)
+            v -= MOD;
+        return *this;
+    }
+    ModInt &operator-=(const ModInt &other) {
+        v -= other.v;
+        if (v < 0)
+            v += MOD;
+        return *this;
+    }
+    ModInt &operator*=(const ModInt &other) {
+        v = v * other.v % MOD;
+        return *this;
+    }
+    ModInt &operator/=(const ModInt &other) { return *this *= inverse(other); }
+    bool operator==(const ModInt &other) const { return v == other.v; }
+    bool operator!=(const ModInt &other) const { return v != other.v; }
+    friend ModInt operator+(ModInt a, const ModInt &b) { return a += b; }
+    friend ModInt operator-(ModInt a, const ModInt &b) { return a -= b; }
+    friend ModInt operator*(ModInt a, const ModInt &b) { return a *= b; }
+    friend ModInt operator/(ModInt a, const ModInt &b) { return a /= b; }
+    friend ModInt operator-(const ModInt &a) { return 0 - a; }
+    friend ModInt power(ModInt a, long long b) {
+        ModInt ret(1);
+        while (b > 0) {
+            if (b & 1)
+                ret *= a;
+            a *= a;
+            b >>= 1;
         }
-        if (x >= P) {
-            x -= P;
-        }
-        return x;
+        return ret;
     }
-    constexpr int val() const { return x; }
-    explicit constexpr operator int() const { return x; }
-    constexpr MInt operator-() const {
-        MInt res;
-        res.x = norm(P - x);
-        return res;
-    }
-    constexpr MInt inv() const {
-        assert(x != 0);
-        return power(*this, P - 2);
-    }
-    constexpr MInt &operator*=(MInt rhs) {
-        x = 1LL * x * rhs.x % P;
-        return *this;
-    }
-    constexpr MInt &operator+=(MInt rhs) {
-        x = norm(x + rhs.x);
-        return *this;
-    }
-    constexpr MInt &operator-=(MInt rhs) {
-        x = norm(x - rhs.x);
-        return *this;
-    }
-    constexpr MInt &operator/=(MInt rhs) { return *this *= rhs.inv(); }
-    friend constexpr MInt operator*(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res *= rhs;
-        return res;
-    }
-    friend constexpr MInt operator+(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res += rhs;
-        return res;
-    }
-    friend constexpr MInt operator-(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res -= rhs;
-        return res;
-    }
-    friend constexpr MInt operator/(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res /= rhs;
-        return res;
-    }
-    friend constexpr std::istream &operator>>(std::istream &is, MInt &a) {
-        ll v;
-        is >> v;
-        a = MInt(v);
+    friend ModInt inverse(ModInt a) { return power(a, MOD - 2); }
+    friend istream &operator>>(istream &is, ModInt &m) {
+        is >> m.v;
+        m.v = (-MOD < m.v && m.v < MOD) ? m.v : m.v % MOD;
+        if (m.v < 0)
+            m.v += MOD;
         return is;
     }
-    friend constexpr std::ostream &operator<<(std::ostream &os, const MInt &a) {
-        return os << a.val();
-    }
-    friend constexpr bool operator==(MInt lhs, MInt rhs) { return lhs.val() == rhs.val(); }
-    friend constexpr bool operator!=(MInt lhs, MInt rhs) { return lhs.val() != rhs.val(); }
+    friend ostream &operator<<(ostream &os, const ModInt &m) { return os << m.v; }
 };
 
-using modint107 = MInt<1000000007>;
-using modint998 = MInt<998244353>;
+using modint107 = ModInt<1000000007>;
+using modint998 = ModInt<998244353>;
 
 using mint = modint998;
