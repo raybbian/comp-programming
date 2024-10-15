@@ -106,9 +106,9 @@ template <typename E> struct DebugSingle {
     template <typename T, typename U> void traverse(const pair<T, U> &t, int depth, bool nl) {
         (void)nl;
         cerr << depth_color(depth) << "(" << RESET;
-        traverse(t.fi, depth + 1, false);
+        traverse(t.first, depth + 1, false);
         cerr << ": ";
-        traverse(t.se, depth + 1, false);
+        traverse(t.second, depth + 1, false);
         cerr << depth_color(depth) << ")" << RESET;
     }
 
