@@ -239,6 +239,5 @@ struct Debug {
         cerr << RED << "Debug at line " << BOLDRED << line << RESET << RED << " in function "
              << BOLDRED << func << RESET << RED << ": " << RESET << '\n';
         debug(t...);
-        cerr.flush();
     }
 };

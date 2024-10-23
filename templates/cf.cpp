@@ -1,9 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-using ll = long long;
-using db = long double;
-
 #define REP2(i, n) for (int i = 0; i < (n); i++)
 #define REP3(i, a, b) for (int i = (a); i <= (b); i++)
 #define PER2(i, n) for (int i = (n) - 1; i >= 0; i--)
@@ -21,8 +18,8 @@ template <typename T, typename... U> auto ndvec(size_t head, U &&...u) {
     return vector<decltype(inner)>(head, inner);
 }
 
-constexpr ll c_div(ll a, ll b) { return a / b + ((a ^ b) > 0 && a % b); }
-constexpr ll f_div(ll a, ll b) { return a / b - ((a ^ b) < 0 && a % b); }
+constexpr long long c_div(long long a, long long b) { return a / b + ((a ^ b) > 0 && a % b); }
+constexpr long long f_div(long long a, long long b) { return a / b - ((a ^ b) < 0 && a % b); }
 
 #ifdef LOCAL
 #include "/home/rayb/comp-programming/debug/debug.hpp"
@@ -31,12 +28,16 @@ constexpr ll f_div(ll a, ll b) { return a / b - ((a ^ b) < 0 && a % b); }
 #define dbg(...) 42
 #endif
 
+#define int long long
+
 // insert snippets below:
 
 void solve() {}
 
-int main() {
+signed main() {
+#ifndef LOCAL
     cin.tie(nullptr)->sync_with_stdio(false);
+#endif
     // int t;
     // cin >> t;
     // while (t--)
