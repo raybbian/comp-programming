@@ -1,6 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+using ll = long long;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
 #define REP2(i, n) for (int i = 0; i < (n); i++)
 #define REP3(i, a, b) for (int i = (a); i <= (b); i++)
 #define PER2(i, n) for (int i = (n) - 1; i >= 0; i--)
@@ -28,16 +32,12 @@ constexpr long long f_div(long long a, long long b) { return a / b - ((a ^ b) < 
 #define dbg(...) 42
 #endif
 
-#define int long long
-
 // insert snippets below:
 
 void solve() {}
 
 signed main() {
-#ifndef LOCAL
     cin.tie(nullptr)->sync_with_stdio(false);
-#endif
     // int t;
     // cin >> t;
     // while (t--)
