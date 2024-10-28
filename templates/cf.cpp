@@ -22,6 +22,9 @@ template <typename T, typename... U> auto ndvec(size_t head, U &&...u) {
     return vector<decltype(inner)>(head, inner);
 }
 
+constexpr int popcnt(ll x) { return __builtin_popcountll(x); }
+constexpr int bits(ll x) { return x == 0 ? 0 : 63 - __builtin_clzll(x); } // floor(log_2(x))
+
 constexpr long long c_div(long long a, long long b) { return a / b + ((a ^ b) > 0 && a % b); }
 constexpr long long f_div(long long a, long long b) { return a / b - ((a ^ b) < 0 && a % b); }
 
