@@ -1,4 +1,4 @@
-template <typename T> T ternary_search(double l, double r, function<double(T)> f) {
+template <typename T, typename U> T ternary_search(double l, double r, U f) {
     double eps = 1e-9;
     while (r - l > eps) {
         double m1 = l + (r - l) / 3;
@@ -12,7 +12,7 @@ template <typename T> T ternary_search(double l, double r, function<double(T)> f
     }
     return f(l);
 }
-template <typename T> T last_true(T l, T r, function<bool(T)> f) {
+template <typename T, typename U> T last_true(T l, T r, U f) {
     l--;
     assert(l <= r);
     while (l < r) {
@@ -21,7 +21,7 @@ template <typename T> T last_true(T l, T r, function<bool(T)> f) {
     }
     return l;
 }
-template <typename T> T first_true(T l, T r, function<bool(T)> f) {
+template <typename T, typename U> T first_true(T l, T r, U f) {
     r++;
     assert(l <= r);
     while (l < r) {

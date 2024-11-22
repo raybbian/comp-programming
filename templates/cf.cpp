@@ -29,7 +29,7 @@ constexpr long long c_div(long long a, long long b) { return a / b + ((a ^ b) > 
 constexpr long long f_div(long long a, long long b) { return a / b - ((a ^ b) < 0 && a % b); }
 
 #ifdef LOCAL
-#include "/home/rayb/comp-programming/debug/debug.hpp"
+#include "/home/rayb/Projects/comp-programming/debug/debug.hpp"
 #define dbg(...) Debug(#__VA_ARGS__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #else
 #define dbg(...) 42

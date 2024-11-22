@@ -2,23 +2,9 @@
 
 using namespace std;
 
-// policy based ds
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-
-using namespace __gnu_pbds;
-typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_set;
-typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag,
-             tree_order_statistics_node_update>
-    ordered_multiset; // use index as pair second
-
-// typing is hard
 using ll = long long;
-using db = long double;
-using str = string;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
-using pdd = pair<db, db>;
 #define fi first
 #define se second
 #define ln "\n"
@@ -80,8 +66,8 @@ vector<pii> steps_diagonal = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 vector<pii> steps_8dirs = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
 #ifdef LOCAL
-#include "/home/rayb/Documents/comp-programming/debug/debug.hpp"
-#define dbg(...) Debug(#__VA_ARGS__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#include "/home/rayb/Projects/comp-programming/debug/debug_simple.hpp"
+#define dbg(...) cerr << "[" << #__VA_ARGS__ << "]:", debug(__VA_ARGS__)
 #else
 #define dbg(...) 42
 #endif
@@ -92,14 +78,10 @@ void solve() {}
 
 int main() {
     cin.tie(0)->sync_with_stdio(false);
-    array<int, 15> arr;
     vector<int> vec;
     deque<int> deq;
     forward_list<int> fwl;
     list<int> lst;
-    stack<int> st;
-    queue<int> q;
-    priority_queue<int> pq;
     set<int> s;
     multiset<int> ms;
     map<int, int> mp;
@@ -114,14 +96,10 @@ int main() {
     for (int i = 8; i < 12; i++) {
         srand(time(NULL));
         int n = rand() % 10 + 1;
-        arr[i] = n;
         vec.pb(n);
         deq.pb(n);
         fwl.pf(n);
         lst.pb(n);
-        st.push(n);
-        q.push(n);
-        pq.push(n);
         s.ins(n);
         ms.ins(n);
         mp[i] = n;
@@ -140,15 +118,15 @@ int main() {
     }
     vector<int> infns(5, INT_MAX);
     infns[3] = INT_MIN;
-    dbg(arr, vec, deq, fwl, lst, st, q, pq, s, ms, mp, mmp, us, ums, ump, ummp);
-    dbg(what, "HI , ", infns);
+    dbg(vec, deq, fwl, lst, s, ms, mp, mmp, us, ums, ump, ummp);
+    dbg(what, infns);
 
     int a = 5;
     int b = 8;
     tuple t = {1, 'a', 2.2f};
     pii pr = {2, 3};
     string str = "THIS IS A STRING";
-    dbg(t, pr, c_div(a, b), a, b, "THIS IS SO HARWEHD", pair<string, int>{"LMLFAODAS", 0}, str);
+    dbg(t, pr, c_div(a, b), a, b, pair<string, int>{"LMLFAODAS", 0}, str);
 
     auto big_tup = make_tuple(t, pr, a);
     dbg(big_tup);
