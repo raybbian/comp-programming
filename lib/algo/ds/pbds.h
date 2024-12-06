@@ -1,8 +1,5 @@
 #pragma once
-#ifndef PREPROCESS
-#include <bits/stdc++.h>
-using namespace std;
-#endif
+#include <algo/common.h>
 
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>

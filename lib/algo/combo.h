@@ -1,5 +1,7 @@
 #pragma once
-#include "modint.h"
+#include <algo/common.h>
+
+#include <algo/modint.h>
 
 template <int MAXN, int MOD> struct Combo {
     using mint = ModInt<MOD>;

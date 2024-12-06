@@ -1,4 +1,5 @@
 #pragma once
+#include <algo/common.h>
 
 // Finds argmax on [l, r]
 template <typename U> double argmax(double l, double r, U f, double eps = 1e-9) {

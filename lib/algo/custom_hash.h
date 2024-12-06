@@ -1,8 +1,5 @@
 #pragma once
-#ifndef PREPROCESS
-#include <bits/stdc++.h>
-using namespace std;
-#endif
+#include <algo/common.h>
 
 // Pair hash + avoid getting hacked
 struct chash {

@@ -1,48 +1,32 @@
-#ifndef PREPROCESS
-#include <bits/stdc++.h>
-#endif
-using namespace std;
+#include <algo/common.h>
+#include <algo/custom_hash.h>
+#include <algo/ds/ndvec.h>
+#include <algo/modint.h>
+#include <algo/utils/bits.h>
+#include <algo/utils/math.h>
 
 #ifdef LOCAL
-#include "lib/debug/debug.h"
+#include <algo/debug.h>
 #define dbg(...) FOR_EACH(DEBUG, __VA_ARGS__)
 #else
 #define dbg(...) 42
 #endif
 
-#include "lib/utils/loops.h"
-#include "lib/utils/math.h"
-#include "lib/utils/ndvec.h"
-
-using ll = long long;
-using pii = pair<int, int>;
-using pll = pair<ll, ll>;
-
-// insert snippets below:
+using mint = modint107;
 
 void solve() {
-    int n;
-    cin >> n;
-    vector<ll> a(n), pre(n + 1);
-    rep(i, n) {
-        cin >> a[i];
-        pre[i + 1] = a[i] + pre[i];
-    }
-    ll mn = LLONG_MAX, mx = LLONG_MIN;
-    rep(i, 1, n) { mn = min(mn, pre[i] / i); }
-    reverse(a.begin(), a.end());
-    rep(i, n) pre[i + 1] = a[i] + pre[i];
-    rep(i, 1, n) { mx = max(mx, c_div(pre[i], i)); }
-
-    cout << mx - mn << '\n';
+    vi a = {1, 3, 2, 4, 5, 1, 2};
+    unordered_set<pii, chash> b = {{0, 1}, {5, 3}, {2, 4}, {6, 9}};
+    mint c = 11083708;
+    dbg(a, b, c.v);
 }
 
 signed main() {
     cin.tie(nullptr)->sync_with_stdio(false);
-    int t;
-    cin >> t;
-    while (t--)
-        solve();
+    // int t;
+    // cin >> t;
+    // while (t--)
+    solve();
 }
 
 /*

@@ -1,4 +1,5 @@
 #pragma once
+#include <algo/common.h>
 
 // closest element in a set
 template <typename T>

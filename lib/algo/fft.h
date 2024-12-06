@@ -1,8 +1,5 @@
 #pragma once
-#ifndef PREPROCESS
-#include <bits/stdc++.h>
-using namespace std;
-#endif
+#include <algo/common.h>
 
 // Copied from https://gist.github.com/Chillee/4982ba0840745f63f3771bd84f280557#file-ntt-cpp
 template <int maxn> struct FFT {
