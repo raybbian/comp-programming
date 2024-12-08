@@ -1,8 +1,9 @@
 #pragma once
 #include <algo/common.h>
 
-// Finds argmax on [l, r]
-template <typename U> double argmax(double l, double r, U f, double eps = 1e-9) {
+// Finds argmax on [l, r]. Function must be strictly concave!
+template <typename U>
+double argmax(double l, double r, U f, double eps = 1e-9) {
     while (r - l > eps) {
         double m1 = l + (r - l) / 3;
         double m2 = r - (r - l) / 3;
@@ -14,8 +15,9 @@ template <typename U> double argmax(double l, double r, U f, double eps = 1e-9) 
     return l;
 }
 
-// Finds argmin on [l, r]
-template <typename U> double argmin(double l, double r, U f, double eps = 1e-9) {
+// Finds argmin on [l, r]. Function must be strictly convex!
+template <typename U>
+double argmin(double l, double r, U f, double eps = 1e-9) {
     while (r - l > eps) {
         double m1 = l + (r - l) / 3;
         double m2 = r - (r - l) / 3;
@@ -28,7 +30,8 @@ template <typename U> double argmin(double l, double r, U f, double eps = 1e-9) 
 }
 
 // Returns l-1 if no values are true in range.
-template <typename T, typename U> T last_true(T l, T r, U f) {
+template <typename T, typename U>
+T last_true(T l, T r, U f) {
     l--;
     assert(l <= r);
     while (l < r) {
@@ -39,7 +42,8 @@ template <typename T, typename U> T last_true(T l, T r, U f) {
 }
 
 // Returns r+1 if no values are true in range.
-template <typename T, typename U> T first_true(T l, T r, U f) {
+template <typename T, typename U>
+T first_true(T l, T r, U f) {
     r++;
     assert(l <= r);
     while (l < r) {

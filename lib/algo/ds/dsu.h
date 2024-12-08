@@ -1,24 +1,35 @@
 #pragma once
 #include <algo/common.h>
 
-struct DSU {
-    vector<int> e;
-    DSU(int n) { e = vector<int>(n, -1); }
+namespace algo::ds {
 
-    int get(int x) { return e[x] < 0 ? x : e[x] = get(e[x]); }
-
-    bool is_same(int a, int b) { return get(a) == get(b); }
-
-    int size(int x) { return -e[get(x)]; }
-
+template <bool UNION_BY_SIZE = true, bool PATH_COMPRESSION = true>
+struct dsu {
+    dsu(int n) {
+        e = vector<int>(n, -1);
+    }
+    int get(int x) {
+        if (e[x] < 0) return x;
+        if (PATH_COMPRESSION) return e[x] = get(e[x]);
+        return get(e[x]);
+    }
+    bool is_same(int a, int b) {
+        return get(a) == get(b);
+    }
+    int size(int x) {
+        return -e[get(x)];
+    }
     bool unite(int x, int y) {
         x = get(x), y = get(y);
-        if (x == y)
-            return false;
-        if (e[x] > e[y])
-            swap(x, y);
+        if (x == y) return false;
+        if (UNION_BY_SIZE && e[x] > e[y]) swap(x, y);
         e[x] += e[y];
         e[y] = x;
         return true;
     }
+
+private:
+    vector<int> e;
 };
+
+} // namespace algo::ds
