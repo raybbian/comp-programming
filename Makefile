@@ -13,7 +13,7 @@ compile: submit
 
 new: 
 	@read -p "File name: " file_name; \
-	cp "$(LIB_DIR)template.cpp" "$$file_name" && echo "New file '$$file_name' created."
+	cp "$(LIB_DIR)/template.cpp" "$$file_name" && echo "New file '$$file_name' created."
 
 submit: 
 	(echo "#include <bits/stdc++.h>"; $(CXX) $(CXXPPFLAGS) $(FILE) | sed '/^ *$$/d') > $(SUBMIT_FILE)
