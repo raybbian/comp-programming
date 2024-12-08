@@ -1,6 +1,8 @@
 #pragma once
 #include <algo/common.h>
 
+namespace algo::hash {
+
 // Pair hash + avoid getting hacked
 struct chash {
     static uint64_t splitmix64(uint64_t x) {
@@ -21,3 +23,5 @@ struct chash {
         return a + 3 * b;
     }
 };
+
+} // namespace algo::hash

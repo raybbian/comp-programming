@@ -4,7 +4,7 @@
 
 /*
  * Copied from
- * https://github.com/cp-algorithms/cp-algorithms-aux/blob/main/cp-algo/number_theory/modint.hpp
+ * https://github.com/cp-algorithms/cp-algorithms-aux/blob/main/cp-algo/number_theory/primality.hpp
  */
 
 namespace algo::math {

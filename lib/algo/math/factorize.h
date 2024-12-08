@@ -4,6 +4,11 @@
 #include <algo/math/primality.h>
 #include <algo/utils/rng.h>
 
+/*
+ * Copied from
+ * https://github.com/cp-algorithms/cp-algorithms-aux/blob/main/cp-algo/number_theory/factorize.hpp
+ */
+
 namespace algo::math {
 
 auto proper_divisor(uint64_t m) {

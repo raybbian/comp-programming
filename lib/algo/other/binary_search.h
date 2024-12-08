@@ -1,6 +1,8 @@
 #pragma once
 #include <algo/common.h>
 
+namespace algo::search {
+
 // Finds argmax on [l, r]. Function must be strictly concave!
 template <typename U>
 double argmax(double l, double r, U f, double eps = 1e-9) {
@@ -52,3 +54,5 @@ T first_true(T l, T r, U f) {
     }
     return l;
 }
+
+} // namespace algo::search

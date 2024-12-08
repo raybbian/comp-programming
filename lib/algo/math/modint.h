@@ -23,22 +23,22 @@ struct modint_base {
     using Int = _Int;
     using UInt = make_unsigned_t<Int>;
     static constexpr size_t bits = sizeof(Int) * 8;
-    using Int2 = conditional_t<bits <= 32, int64_t, __int128_t>;
-    using UInt2 = conditional_t<bits <= 32, uint64_t, __uint128_t>;
+    using Long = conditional_t<bits <= 32, int64_t, __int128_t>;
+    using ULong = conditional_t<bits <= 32, uint64_t, __uint128_t>;
     static Int mod() {
         return modint::mod();
     }
     static UInt imod() {
         return modint::imod();
     }
-    static UInt2 pw128() {
+    static ULong pw128() {
         return modint::pw128();
     }
-    static UInt m_reduce(UInt2 ab) {
+    static UInt m_reduce(ULong ab) {
         if (mod() % 2 == 0) [[unlikely]] {
             return UInt(ab % mod());
         } else {
-            UInt2 m = (UInt)ab * imod();
+            ULong m = (UInt)ab * imod();
             return UInt((ab + m * mod()) >> bits);
         }
     }
@@ -51,7 +51,7 @@ struct modint_base {
     }
     modint_base() : r(0) {
     }
-    modint_base(Int2 rr) : r(UInt(rr % mod())) {
+    modint_base(Long rr) : r(UInt(rr % mod())) {
         r = min(r, r + mod());
         r = m_transform(r);
     }
@@ -67,7 +67,7 @@ struct modint_base {
         return to_modint() *= t.inv();
     }
     modint &operator*=(const modint &t) {
-        r = m_reduce((UInt2)r * t.r);
+        r = m_reduce((ULong)r * t.r);
         return to_modint();
     }
     modint &operator+=(const modint &t) {
@@ -174,14 +174,14 @@ struct modint : modint_base<modint<m>, decltype(m)> {
     using Base = modint_base<modint<m>, decltype(m)>;
     using Base::Base;
     static constexpr Base::UInt im = m % 2 ? inv2(-m) : 0;
-    static constexpr Base::UInt r2 = (typename Base::UInt2)(-1) % m + 1;
+    static constexpr Base::UInt r2 = (typename Base::ULong)(-1) % m + 1;
     static constexpr Base::Int mod() {
         return m;
     }
     static constexpr Base::UInt imod() {
         return im;
     }
-    static constexpr Base::UInt2 pw128() {
+    static constexpr Base::ULong pw128() {
         return r2;
     }
 };
@@ -196,13 +196,13 @@ struct dynamic_modint : modint_base<dynamic_modint<Int>, Int> {
     static Base::UInt imod() {
         return im;
     }
-    static Base::UInt2 pw128() {
+    static Base::ULong pw128() {
         return r2;
     }
     static void switch_mod(Int nm) {
         m = nm;
         im = m % 2 ? inv2(-m) : 0;
-        r2 = static_cast<Base::UInt>(static_cast<Base::UInt2>(-1) % m + 1);
+        r2 = static_cast<Base::UInt>(static_cast<Base::ULong>(-1) % m + 1);
     }
 
     // Wrapper for temp switching
@@ -228,5 +228,8 @@ template <typename Int>
 dynamic_modint<Int>::Base::UInt thread_local dynamic_modint<Int>::im = -1;
 template <typename Int>
 dynamic_modint<Int>::Base::UInt thread_local dynamic_modint<Int>::r2 = 0;
+
+using mint107 = modint<1000000007>;
+using mint998 = modint<998244353>;
 
 } // namespace algo::math

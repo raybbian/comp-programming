@@ -1,6 +1,8 @@
 #pragma once
 #include <algo/common.h>
 
+namespace algo::math {
+
 vector<bool> is_prime;
 constexpr void sieve(int n) {
     is_prime = vector<bool>(n + 1, true);
@@ -13,3 +15,5 @@ constexpr void sieve(int n) {
         }
     }
 }
+
+} // namespace algo::math

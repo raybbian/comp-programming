@@ -4,6 +4,9 @@
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
 
+void noop() {
+}
+
 template <typename A, typename B>
 string to_string(const pair<A, B> &t);
 template <typename A, typename B, typename C>
