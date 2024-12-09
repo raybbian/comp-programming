@@ -1,0 +1,3 @@
+[[languages.cpp.environments]]
+CXX = "g++"
+CXXFLAGS = ["-std=c++23", "-Wall", "-Wextra", "-Wno-sign-conversion", "-O2", "-I/home/rayb/Projects/comp-programming/lib"]

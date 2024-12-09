@@ -1,235 +1,234 @@
 #pragma once
-#include <algo/common.h>
-#include <algo/math/common.h>
+#include "algo/common.h"
+#include "algo/math/common.h"
+#include "algo/math/primality.h"
 
 /*
  * Copied from
- * https://github.com/cp-algorithms/cp-algorithms-aux/blob/main/cp-algo/number_theory/modint.hpp
+ * https://github.com/cp-algorithms/cp-algorithms-aux/blob/main/cp-algo/number_theory/mint.hpp
  */
 
 namespace algo::math {
 
-inline constexpr auto inv2(auto x) {
-    assert(x % 2);
-    make_unsigned_t<decltype(x)> y = 1;
-    while (y * x != 1) {
-        y *= 2 - x * y;
+template <int m>
+struct static_modint {
+    using mint = static_modint;
+    static constexpr int mod() {
+        return m;
     }
-    return y;
-}
-
-template <typename modint, typename _Int>
-struct modint_base {
-    using Int = _Int;
-    using UInt = make_unsigned_t<Int>;
-    static constexpr size_t bits = sizeof(Int) * 8;
-    using Long = conditional_t<bits <= 32, int64_t, __int128_t>;
-    using ULong = conditional_t<bits <= 32, uint64_t, __uint128_t>;
-    static Int mod() {
-        return modint::mod();
+    static_modint() : v(0) {
     }
-    static UInt imod() {
-        return modint::imod();
+    static_modint(int64_t _v) {
+        v = (-m < _v && _v < m) ? _v : _v % m;
+        if (v < 0) v += m;
     }
-    static ULong pw128() {
-        return modint::pw128();
+    mint &operator+=(const mint &other) {
+        v += other.v;
+        if (v >= m) v -= m;
+        return *this;
     }
-    static UInt m_reduce(ULong ab) {
-        if (mod() % 2 == 0) [[unlikely]] {
-            return UInt(ab % mod());
+    mint &operator-=(const mint &other) {
+        v -= other.v;
+        if (v < 0) v += m;
+        return *this;
+    }
+    mint &operator*=(const mint &other) {
+        v = v * other.v % m;
+        return *this;
+    }
+    mint &operator/=(const mint &other) {
+        return *this *= bpow(other, m - 2);
+    }
+    mint &operator++() {
+        v++;
+        if (v == m) v = 0;
+        return *this;
+    }
+    mint &operator--() {
+        if (v == 0) v = m;
+        v--;
+        return *this;
+    }
+    mint operator++(int) {
+        mint result = *this;
+        ++*this;
+        return result;
+    }
+    mint operator--(int) {
+        mint result = *this;
+        --*this;
+        return result;
+    }
+    friend mint operator+(mint a, const mint &b) {
+        return a += b;
+    }
+    friend mint operator-(mint a, const mint &b) {
+        return a -= b;
+    }
+    friend mint operator*(mint a, const mint &b) {
+        return a *= b;
+    }
+    friend mint operator/(mint a, const mint &b) {
+        return a /= b;
+    }
+    friend mint operator-(mint a) {
+        return 0 - a;
+    }
+    mint inv() const {
+        if (prime) {
+            assert(v);
+            return bpow(v, m - 2);
         } else {
-            ULong m = (UInt)ab * imod();
-            return UInt((ab + m * mod()) >> bits);
+            auto eg = inv_gcd(v, m);
+            assert(eg.first == 1);
+            return eg.second;
         }
-    }
-    static UInt m_transform(UInt a) {
-        if (mod() % 2 == 0) [[unlikely]] {
-            return a;
-        } else {
-            return m_reduce(a * pw128());
-        }
-    }
-    modint_base() : r(0) {
-    }
-    modint_base(Long rr) : r(UInt(rr % mod())) {
-        r = min(r, r + mod());
-        r = m_transform(r);
-    }
-    modint inv() const {
-        return bpow(to_modint(), mod() - 2);
-    }
-    modint operator-() const {
-        modint neg;
-        neg.r = min(-r, 2 * mod() - r);
-        return neg;
-    }
-    modint &operator/=(const modint &t) {
-        return to_modint() *= t.inv();
-    }
-    modint &operator*=(const modint &t) {
-        r = m_reduce((ULong)r * t.r);
-        return to_modint();
-    }
-    modint &operator+=(const modint &t) {
-        r += t.r;
-        r = min(r, r - 2 * mod());
-        return to_modint();
-    }
-    modint &operator-=(const modint &t) {
-        r -= t.r;
-        r = min(r, r + 2 * mod());
-        return to_modint();
-    }
-    modint operator+(const modint &t) const {
-        return modint(to_modint()) += t;
-    }
-    modint operator-(const modint &t) const {
-        return modint(to_modint()) -= t;
-    }
-    modint operator*(const modint &t) const {
-        return modint(to_modint()) *= t;
-    }
-    modint operator/(const modint &t) const {
-        return modint(to_modint()) /= t;
-    }
-    auto operator==(const modint_base &t) const {
-        return getr() == t.getr();
-    }
-    auto operator!=(const modint_base &t) const {
-        return getr() != t.getr();
-    }
-    auto operator<=(const modint_base &t) const {
-        return getr() <= t.getr();
-    }
-    auto operator>=(const modint_base &t) const {
-        return getr() >= t.getr();
-    }
-    auto operator<(const modint_base &t) const {
-        return getr() < t.getr();
-    }
-    auto operator>(const modint_base &t) const {
-        return getr() > t.getr();
-    }
-    Int rem() const {
-        UInt R = getr();
-        return 2 * R > (UInt)mod() ? R - mod() : R;
     }
 
-    // Only use if you really know what you're doing!
-    UInt modmod() const {
-        return (UInt)8 * mod() * mod();
-    };
-    void add_unsafe(UInt t) {
-        r += t;
+    friend bool operator==(const mint &a, const mint &b) {
+        return a.v == b.v;
     }
-    void pseudonormalize() {
-        r = min(r, r - modmod());
+    friend bool operator!=(const mint &a, const mint &b) {
+        return !(a == b);
     }
-    modint const &normalize() {
-        if (r >= (UInt)mod()) {
-            r %= mod();
-        }
-        return to_modint();
+    explicit operator int() const {
+        return v;
     }
-    void setr(UInt rr) {
-        r = m_transform(rr);
+    friend std::ostream &operator<<(std::ostream &os, const mint &a) {
+        return os << a.v;
     }
-    UInt getr() const {
-        UInt res = m_reduce(r);
-        return min(res, res - mod());
+    friend std::istream &operator>>(std::istream &is, mint &a) {
+        is >> a.v;
+        a.v = (-m < a.v && a.v < m) ? a.v : a.v % m;
+        if (a.v < 0) a.v += m;
+        return is;
     }
-    void setr_direct(UInt rr) {
-        r = rr;
-    }
-    UInt getr_direct() const {
-        return r;
+    friend std::string to_string(mint &a) {
+        return std::to_string(a.v);
     }
 
 private:
-    UInt r;
-    modint &to_modint() {
-        return static_cast<modint &>(*this);
-    }
-    modint const &to_modint() const {
-        return static_cast<modint const &>(*this);
-    }
-};
-template <typename modint>
-concept modint_type =
-    is_base_of_v<modint_base<modint, typename modint::Int>, modint>;
-template <modint_type modint>
-istream &operator>>(istream &in, modint &x) {
-    typename modint::UInt r;
-    auto &res = in >> r;
-    x.setr(r);
-    return res;
-}
-template <modint_type modint>
-ostream &operator<<(ostream &out, modint const &x) {
-    return out << x.getr();
-}
-
-template <auto m>
-struct modint : modint_base<modint<m>, decltype(m)> {
-    using Base = modint_base<modint<m>, decltype(m)>;
-    using Base::Base;
-    static constexpr Base::UInt im = m % 2 ? inv2(-m) : 0;
-    static constexpr Base::UInt r2 = (typename Base::ULong)(-1) % m + 1;
-    static constexpr Base::Int mod() {
-        return m;
-    }
-    static constexpr Base::UInt imod() {
-        return im;
-    }
-    static constexpr Base::ULong pw128() {
-        return r2;
-    }
+    int v;
+    static constexpr bool prime = is_prime<m>;
 };
 
-template <typename Int = int64_t>
-struct dynamic_modint : modint_base<dynamic_modint<Int>, Int> {
-    using Base = modint_base<dynamic_modint<Int>, Int>;
-    using Base::Base;
-    static Int mod() {
-        return m;
-    }
-    static Base::UInt imod() {
-        return im;
-    }
-    static Base::ULong pw128() {
-        return r2;
-    }
-    static void switch_mod(Int nm) {
-        m = nm;
-        im = m % 2 ? inv2(-m) : 0;
-        r2 = static_cast<Base::UInt>(static_cast<Base::ULong>(-1) % m + 1);
-    }
+template <int id>
+struct dynamic_modint {
+    using mint = dynamic_modint;
 
-    // Wrapper for temp switching
-    auto static with_mod(Int tmp, auto callback) {
+    static int mod() {
+        return (int)(bt.umod());
+    }
+    static void set_mod(int m) {
+        assert(1 <= m);
+        bt = barrett(m);
+    }
+    auto static with_mod(int tmp, auto callback) {
         struct scoped {
-            Int prev = mod();
+            int prev = mod();
             ~scoped() {
-                switch_mod(prev);
+                set_mod(prev);
             }
         } _;
-        switch_mod(tmp);
+        set_mod(tmp);
         return callback();
+    }
+    dynamic_modint() : v(0) {
+    }
+    dynamic_modint(int64_t _v) {
+        v = (-mod() < _v && _v < mod()) ? _v : _v % mod();
+        if (v < 0) v += mod();
+    }
+    mint &operator+=(const mint &other) {
+        v += other.v;
+        if (v >= mod()) v -= mod();
+        return *this;
+    }
+    mint &operator-=(const mint &other) {
+        v -= other.v;
+        if (v < 0) v += mod();
+        return *this;
+    }
+    mint &operator*=(const mint &other) {
+        v = bt.mul(v, other.v);
+        return *this;
+    }
+    mint &operator/=(const mint &other) {
+        return *this = *this * other.inv();
+    }
+    int &operator++() {
+        v++;
+        if (v == mod()) v = 0;
+        return *this;
+    }
+    mint &operator--() {
+        if (v == 0) v = mod();
+        v--;
+        return *this;
+    }
+    mint operator++(int) {
+        mint result = *this;
+        ++*this;
+        return result;
+    }
+    mint operator--(int) {
+        mint result = *this;
+        --*this;
+        return result;
+    }
+    friend mint operator+(mint a, const mint &b) {
+        return a += b;
+    }
+    friend mint operator-(mint a, const mint &b) {
+        return a -= b;
+    }
+    friend mint operator*(mint a, const mint &b) {
+        return a *= b;
+    }
+    friend mint operator/(mint a, const mint &b) {
+        return a /= b;
+    }
+    friend mint operator-(mint a) {
+        return 0 - a;
+    }
+
+    mint inv() const {
+        auto eg = inv_gcd(v, mod());
+        assert(eg.first == 1);
+        return eg.second;
+    }
+
+    friend bool operator==(const mint &a, const mint &b) {
+        return a.v == b.v;
+    }
+    friend bool operator!=(const mint &a, const mint &b) {
+        return !(a == b);
+    }
+    explicit operator int() const {
+        return v;
+    }
+    friend std::ostream &operator<<(std::ostream &os, const mint &a) {
+        return os << a.v;
+    }
+    friend std::istream &operator>>(std::istream &is, mint &a) {
+        is >> a.v;
+        a.v = (mod() < a.v && a.v < mod()) ? a.v : a.v % mod();
+        if (a.v < 0) a.v += mod();
+        return is;
+    }
+    friend std::string to_string(mint &a) {
+        return std::to_string(a.v);
     }
 
 private:
-    static thread_local Int m;
-    static thread_local Base::UInt im, r2;
+    int v;
+    static barrett bt;
 };
+template <int id>
+barrett dynamic_modint<id>::bt(998244353);
 
-template <typename Int>
-Int thread_local dynamic_modint<Int>::m = 1;
-template <typename Int>
-dynamic_modint<Int>::Base::UInt thread_local dynamic_modint<Int>::im = -1;
-template <typename Int>
-dynamic_modint<Int>::Base::UInt thread_local dynamic_modint<Int>::r2 = 0;
-
-using mint107 = modint<1000000007>;
-using mint998 = modint<998244353>;
+using mint998 = static_modint<998244353>;
+using mint107 = static_modint<1000000007>;
+using mint = dynamic_modint<-1>;
 
 } // namespace algo::math

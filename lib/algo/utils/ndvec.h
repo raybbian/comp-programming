@@ -4,7 +4,7 @@
 namespace algo::utils {
 
 template <typename T>
-vector<T> ndvec(size_t size, T initial_value) {
+std::vector<T> ndvec(size_t size, T initial_value) {
     return vector<T>(size, initial_value);
 }
 template <typename T, typename... U>

@@ -1,12 +1,12 @@
 #pragma once
-#include <algo/common.h>
+#include "algo/common.h"
 
 namespace algo::ds {
 
 template <bool UNION_BY_SIZE = true, bool PATH_COMPRESSION = true>
 struct dsu {
     dsu(int n) {
-        e = vector<int>(n, -1);
+        e = std::vector<int>(n, -1);
     }
     int get(int x) {
         if (e[x] < 0) return x;
@@ -22,14 +22,14 @@ struct dsu {
     bool unite(int x, int y) {
         x = get(x), y = get(y);
         if (x == y) return false;
-        if (UNION_BY_SIZE && e[x] > e[y]) swap(x, y);
+        if (UNION_BY_SIZE && e[x] > e[y]) std::swap(x, y);
         e[x] += e[y];
         e[y] = x;
         return true;
     }
 
 private:
-    vector<int> e;
+    std::vector<int> e;
 };
 
 } // namespace algo::ds

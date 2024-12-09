@@ -1,19 +1,25 @@
 #pragma once
-#include <algo/common.h>
+#include "algo/common.h"
+#include "algo/math/common.h"
 
 namespace algo::math {
 
-vector<bool> is_prime;
-constexpr void sieve(int n) {
-    is_prime = vector<bool>(n + 1, true);
-    is_prime[0] = is_prime[1] = false;
-    for (int i = 2; i * i <= n; i++) {
-        if (is_prime[i]) {
-            for (int j = i * i; j <= n; j += i) {
-                is_prime[j] = false;
+bool is_prime_sieve(int n) {
+    assert(n < MAXN);
+    static std::vector<bool> F(MAXN, true);
+    static bool init = false;
+    if (!init) {
+        F[0] = F[1] = false;
+        for (int i = 2; i * i < MAXN; i++) {
+            if (F[i]) {
+                for (int j = i * i; j <= n; j += i) {
+                    F[j] = false;
+                }
             }
         }
+        init = true;
     }
+    return F[n];
 }
 
 } // namespace algo::math
