@@ -1,0 +1,9 @@
+#line 2 "lib/algo/common.h"
+#ifndef PREPROCESS
+#include <bits/stdc++.h>
+#endif
+
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+#define fi first
+#define se second
