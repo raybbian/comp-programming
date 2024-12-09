@@ -1,5 +1,7 @@
 **/a.out
-.idea
 **/.cache
-**/submit.cpp
-**/in
+
+.idea
+submit.cpp
+
+.competitive-verifier
