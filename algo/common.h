@@ -5,5 +5,3 @@
 
 #define all(x) begin(x), end(x)
 #define sz(x) (int)(x).size()
-#define fi first
-#define se second

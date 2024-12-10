@@ -1,5 +1,5 @@
 #pragma once
-#include "algo/common.h"
+#include "../common.h"
 
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>

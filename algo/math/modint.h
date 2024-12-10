@@ -1,7 +1,7 @@
 #pragma once
-#include "algo/common.h"
-#include "algo/math/common.h"
-#include "algo/math/primality.h"
+#include "../common.h"
+#include "../math/common.h"
+#include "../math/primality.h"
 
 /*
  * Copied from

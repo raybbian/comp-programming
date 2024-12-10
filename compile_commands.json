@@ -9,7 +9,7 @@
       "-Wextra",
       "-Wno-sign-conversion",
       "-O2",
-      "-I/home/rayb/Projects/comp-programming/lib",
+      "-I/home/rayb/Projects/comp-programming",
       "-o",
       "a.out",
       "main.cpp"

@@ -1,4 +1,4 @@
-LIB_DIR = /home/rayb/Projects/comp-programming/lib
+LIB_DIR = /home/rayb/Projects/comp-programming
 CXX := g++
 CXXFLAGS := -std=c++23 -DLOCAL -Wall -Wextra -Wno-sign-conversion -O2 -I$(LIB_DIR)
 CXXPPFLAGS := -std=c++23 -E -P -DPREPROCESS -I$(LIB_DIR)

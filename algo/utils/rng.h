@@ -1,5 +1,5 @@
 #pragma once
-#include <algo/common.h>
+#include "../common.h"
 
 namespace algo::random {
 

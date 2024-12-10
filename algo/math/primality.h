@@ -1,5 +1,6 @@
-#include "algo/common.h"
-#include "algo/math/common.h"
+#pragma once
+#include "../common.h"
+#include "../math/common.h"
 
 namespace algo::math {
 

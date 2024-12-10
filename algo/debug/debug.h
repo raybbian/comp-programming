@@ -1,5 +1,5 @@
 #pragma once
-#include "algo/common.h"
+#include "../common.h"
 
 template <typename A, typename B>
 std::string to_string(const std::pair<A, B> &t);
