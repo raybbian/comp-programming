@@ -18,10 +18,10 @@ using ds::fenwick;
 void solve() {
     int n, q;
     cin >> n >> q;
-    vector<int> a(n);
+    vector<int64_t> a(n);
     for (int i = 0; i < n; i++)
         cin >> a[i];
-    fenwick<int> t(a);
+    fenwick<int64_t> t(a);
     for (int i = 0; i < q; i++) {
         int typ, x, y;
         cin >> typ >> x >> y;

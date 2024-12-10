@@ -7,14 +7,13 @@
 #define dbg(...) 42
 #endif
 
-// #include
+/* #include */
 #include "algo/ds/dsu.h"
 #include "algo/ds/fenwick.h"
 #include "algo/math/modint.h"
 
 using namespace std;
 using namespace algo;
-#define int long long
 
 void solve() {
     vector<bool> a = {1, 0, 0, 1, 1, 1, 0, 1};
