@@ -1,3 +1,4 @@
+#define PROBLEM "https://judge.yosupo.jp/problem/staticrmq"
 #include "algo/common.h"
 
 #ifdef LOCAL
