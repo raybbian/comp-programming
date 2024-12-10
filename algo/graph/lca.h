@@ -1,44 +1,42 @@
 #pragma once
 #include "../common.h"
+#include "../ds/sparse_table.h"
 #include "../utils/bits.h"
-
-// TODO: replace with RMQ
 
 namespace algo::graph {
 
 struct lca {
     // Note that adj must be a tree. Don't forget to set root!
     lca(const std::vector<std::vector<int>> &adj, int root = 0)
-        : n(sz(adj)), l(utils::lg2(n) + 1), timer(0), tin(n), tout(n),
-          up(n, std::vector<int>(l + 1, root)) {
-        dfs(root, root, adj);
-    }
-    // Returns true if u is an ancestor of v
-    bool is_ancestor(int u, int v) {
-        return tin[u] <= tin[v] && tout[u] >= tout[v];
+        : n(sz(adj)), height(n), first(n), st(2 * n, [&](int a, int b) {
+              return height[a] < height[b] ? a : b;
+          }) {
+        euler.reserve(2 * n);
+        dfs(root, root, 0, adj);
+        st.init(euler);
     }
     // Lowest common ancestor of u, v
     int par(int u, int v) {
-        if (is_ancestor(u, v)) return u;
-        if (is_ancestor(v, u)) return v;
-        for (int i = l; i >= 0; i--)
-            if (!is_ancestor(up[u][i], v)) u = up[u][i];
-        return up[u][0];
+        int l = first[u], r = first[v];
+        if (l > r) std::swap(l, r);
+        return st.query(l, r);
     }
 
 private:
-    int n, l, timer;
-    std::vector<int> tin, tout;
-    std::vector<std::vector<int>> up;
+    int n;
+    std::vector<int> height, euler, first;
+    ds::sparse_table<int> st;
 
-    void dfs(int v, int p, const std::vector<std::vector<int>> &adj) {
-        tin[v] = ++timer;
-        up[v][0] = p;
-        for (int i = 1; i <= l; i++)
-            up[v][i] = up[up[v][i - 1]][i - 1];
-        for (int u : adj[v])
-            if (u != p) dfs(u, v, adj);
-        tout[v] = ++timer;
+    void dfs(int v, int p, int h, const std::vector<std::vector<int>> &adj) {
+        height[v] = h;
+        first[v] = sz(euler);
+        euler.push_back(v);
+        for (int u : adj[v]) {
+            if (u != p) {
+                dfs(u, v, h + 1, adj);
+                euler.push_back(v);
+            }
+        }
     }
 };
 
