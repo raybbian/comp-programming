@@ -18,7 +18,7 @@ T fact(int n) {
 }
 template <typename T>
 T inv_fact(int n) {
-    static std::vector<T> F(1);
+    static std::vector<T> F(MAXN);
     static bool init = false;
     if (!init) {
         int t = std::min(T::mod(), MAXN) - 1;

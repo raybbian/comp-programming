@@ -1,4 +1,4 @@
-// competitive-verifier: PROBLEM https://judge.yosupo.jp/problem/binomial_coefficient_prime_mod
+#define PROBLEM "https://judge.yosupo.jp/problem/binomial_coefficient_prime_mod"
 #define ALGO_MAXN 1e7
 #include "algo/common.h"
 
@@ -18,19 +18,19 @@
 
 using namespace std;
 using namespace algo;
-#define int long long
+using namespace math;
 
 void solve() {
     int n, k;
     cin >> n >> k;
-    cout << math::cmb<math::mint>(n, k) << '\n';
+    cout << cmb<mint>(n, k) << '\n';
 }
 
 signed main() {
     cin.tie(nullptr)->sync_with_stdio(false);
     int t, m;
     cin >> t >> m;
-    math::mint::set_mod(m);
+    mint::set_mod(m);
     while (t--)
         solve();
 }

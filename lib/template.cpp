@@ -14,7 +14,6 @@
 
 using namespace std;
 using namespace algo;
-#define int long long
 
 void solve() {
 }
