@@ -1,6 +1,5 @@
 #pragma once
-#include "../common.h"
-#include "../math/modint.h"
+#include "algo/common.h"
 
 template <typename T>
 concept printable = requires(T t) {

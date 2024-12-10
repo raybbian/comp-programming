@@ -1,5 +1,5 @@
 #pragma once
-#include "../common.h"
+#include "algo/common.h"
 
 #ifdef ALGO_MAXN
 const int MAXN = ALGO_MAXN;

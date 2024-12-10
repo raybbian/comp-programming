@@ -1,7 +1,7 @@
 #pragma once
-#include "../common.h"
-#include "../ds/common.h"
-#include "../utils/bits.h"
+#include "algo/common.h"
+#include "algo/ds/common.h"
+#include "algo/utils/bits.h"
 
 namespace algo::ds {
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "../common.h"
+#include "algo/common.h"
 
 namespace algo::hash {
 

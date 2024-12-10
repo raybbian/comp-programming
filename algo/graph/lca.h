@@ -1,7 +1,7 @@
 #pragma once
-#include "../common.h"
-#include "../ds/sparse_table.h"
-#include "../utils/bits.h"
+#include "algo/common.h"
+#include "algo/ds/sparse_table.h"
+#include "algo/utils/bits.h"
 
 namespace algo::graph {
 
