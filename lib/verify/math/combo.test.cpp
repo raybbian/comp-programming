@@ -1,5 +1,4 @@
-// competitive-verifier: PROBLEM
-// https://judge.yosupo.jp/problem/binomial_coefficient_prime_mod
+#define PROBLEM "https://judge.yosupo.jp/problem/binomial_coefficient_prime_mod"
 #define ALGO_MAXN 1e7
 #include "algo/common.h"
 
