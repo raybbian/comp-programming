@@ -29,9 +29,9 @@ struct sparse_table {
     }
 
 private:
-    int k, n;
-    std::vector<std::vector<T>> st;
+    int n, k;
     std::function<T(T, T)> op;
+    std::vector<std::vector<T>> st;
 };
 
 } // namespace algo::ds
