@@ -1,5 +1,11 @@
 #pragma once
 #include "../common.h"
+#include "../math/modint.h"
+
+template <typename T>
+concept printable = requires(T t) {
+    { std::cout << t } -> std::same_as<std::ostream &>;
+};
 
 template <typename A, typename B>
 std::string to_string(const std::pair<A, B> &t);
@@ -13,17 +19,14 @@ std::string to_string(A v);
 void noop() {
 }
 
-std::string to_string(char c) {
-    return std::string(1, c);
-}
-std::string to_string(const std::string &s) {
+std::string to_string(std::string s) {
     return '"' + s + '"';
 }
-std::string to_string(const char *s) {
-    return to_string((std::string)s);
-}
-std::string to_string(bool b) {
-    return (b ? "T" : "F");
+template <printable T>
+std::string to_string(T v) {
+    std::ostringstream s;
+    s << v;
+    return s.str();
 }
 template <size_t N>
 std::string to_string(std::bitset<N> v) {

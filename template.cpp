@@ -1,8 +1,5 @@
 #include "algo/common.h"
 
-#include "algo/utils/bits.h"
-#include "algo/utils/ndvec.h"
-
 #ifdef LOCAL
 #include "algo/debug/debug.h"
 #define dbg(...) FOR_EACH(DEBUG, __VA_ARGS__) noop()

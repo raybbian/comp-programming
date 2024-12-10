@@ -27,6 +27,23 @@ struct dsu {
         e[y] = x;
         return true;
     }
+    friend std::ostream &operator<<(std::ostream &os, dsu s) {
+        bool first = true;
+        for (int i = 0; i < sz(s.e); i++) {
+            if (s.get(i) == i) {
+                if (!first) os << ", ";
+                first = false;
+                os << "[*" << i;
+                for (int j = 0; j < sz(s.e); j++) {
+                    if (j != i && s.get(j) == i) {
+                        os << ", " << j;
+                    }
+                }
+                os << "]";
+            }
+        }
+        return os;
+    }
 
 private:
     std::vector<int> e;

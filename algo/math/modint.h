@@ -103,9 +103,6 @@ struct static_modint {
         if (a.v < 0) a.v += m;
         return is;
     }
-    friend std::string to_string(mint &a) {
-        return std::to_string(a.v);
-    }
 
 private:
     int v;
@@ -215,9 +212,6 @@ struct dynamic_modint {
         a.v = (mod() < a.v && a.v < mod()) ? a.v : a.v % mod();
         if (a.v < 0) a.v += mod();
         return is;
-    }
-    friend std::string to_string(mint &a) {
-        return std::to_string(a.v);
     }
 
 private:
