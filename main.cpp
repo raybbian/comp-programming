@@ -10,6 +10,7 @@
 /* #include */
 #include "algo/ds/dsu.h"
 #include "algo/ds/fenwick.h"
+#include "algo/ds/sparse_table.h"
 #include "algo/math/modint.h"
 
 using namespace std;
@@ -30,10 +31,19 @@ void solve() {
     dsu.unite(0, 4);
     dsu.unite(5, 6);
 
+    bitset<10> bs(2138);
+
     ds::fenwick<int> t({5, 1, 3, 2, 6});
     t.add(2, 10);
 
-    dbg(a, b, c, "hi", d, dsu, t);
+    ds::sparse_table<int> st({5, 1, 2, 3, 4, 6},
+                             [&](int a, int b) { return std::min(a, b); });
+    tuple lots{t, st, dsu};
+    vector<pair<int, int>> dirs = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+
+    array<math::mint, 5> arr{0, 1, 2, 3, -1};
+
+    dbg(a, b, c, "hi", d, dsu, t, st, st.query(1, 3), bs, lots, dirs, arr);
 }
 
 signed main() {

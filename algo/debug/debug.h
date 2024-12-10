@@ -6,70 +6,52 @@ template <typename T>
 concept printable = requires(T t) {
     { std::cout << t } -> std::same_as<std::ostream &>;
 };
+template <typename T>
+concept iterable = std::ranges::range<T> && (!printable<T>);
 
-template <typename A, typename B>
-std::string to_string(const std::pair<A, B> &t);
-template <typename A, typename B, typename C>
-std::string to_string(const std::tuple<A, B, C> &t);
-template <typename A, typename B, typename C, typename D>
-std::string to_string(const std::tuple<A, B, C, D> &t);
-template <std::ranges::range A>
-std::string to_string(A v);
-
-void noop() {
+template <typename T = void>
+T noop() {
 }
 
-std::string to_string(std::string s) {
-    return '"' + s + '"';
-}
-template <printable T>
-std::string to_string(T v) {
-    std::ostringstream s;
-    s << v;
-    return s.str();
-}
 template <size_t N>
-std::string to_string(std::bitset<N> v) {
-    std::string res = "<";
+std::ostream &operator<<(std::ostream &os, const std::bitset<N> &v) {
+    os << "<";
     for (size_t i = 0; i < N; i++) {
-        res += static_cast<char>('0' + v[i]);
+        os << static_cast<char>('0' + v[i]);
     }
-    res += ">";
-    return res;
+    return os << ">";
 }
-template <typename A, typename B>
-std::string to_string(const std::pair<A, B> &t) {
-    return "(" + to_string(t.fi) + ": " + to_string(t.se) + ")";
+template <typename T, typename U>
+std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &p) {
+    return os << "(" << p.first << ", " << p.second << ")";
 }
-template <typename A, typename B, typename C>
-std::string to_string(const std::tuple<A, B, C> &t) {
-    return "(" + to_string(get<0>(t)) + ", " + to_string(get<1>(t)) + ", " +
-           to_string(get<2>(t)) + ")";
-}
-template <typename A, typename B, typename C, typename D>
-std::string to_string(const std::tuple<A, B, C, D> &t) {
-    return "(" + to_string(get<0>(t)) + ", " + to_string(get<1>(t)) + ", " +
-           to_string(get<2>(t)) + ", " + to_string(get<3>(t)) + ")";
-}
-template <std::ranges::range A>
-std::string to_string(A v) {
+template <typename... T>
+std::ostream &operator<<(std::ostream &os, const std::tuple<T...> &t) {
+    os << "(";
     bool first = true;
-    std::string res = "[";
-    for (const auto &x : v) {
-        if (!first) {
-            res += ", ";
-        }
+    auto print = [&os, &first](auto arg) {
+        if (!first) os << ", ";
         first = false;
-        res += to_string(x);
+        os << arg;
+    };
+    std::apply([&print](auto &&...args) { (print(args), ...); }, t);
+    return os << ")";
+}
+template <iterable T>
+std::ostream &operator<<(std::ostream &os, const T &t) {
+    os << "[";
+    bool first = true;
+    for (const auto &e : t) {
+        if (!first) os << ", ";
+        first = false;
+        os << e;
     }
-    res += "]";
-    return res;
+    return os << "]";
 }
 
 template <typename T>
 void debug(std::string name, T var) {
-    std::cerr << "\x1B[31m" << name << ": " << to_string(var) << "\x1B[0m"
-              << '\n';
+    std::cerr << "\x1B[31m" << name << ": " << var << "\x1B[0m" << '\n';
 }
 
 // https://www.scs.stanford.edu/~dm/blog/va-opt.html
