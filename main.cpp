@@ -9,6 +9,7 @@
 
 // #include
 #include "algo/ds/dsu.h"
+#include "algo/ds/fenwick.h"
 #include "algo/math/modint.h"
 
 using namespace std;
@@ -22,7 +23,7 @@ void solve() {
     vector<math::mint> c = {102380918203, 321378012937, 31231231208,
                             3213010101};
     string d = "TNASRIEOTNRIAS";
-    algo::ds::dsu dsu(10);
+    ds::dsu dsu(10);
 
     dsu.unite(0, 1);
     dsu.unite(0, 2);
@@ -30,7 +31,10 @@ void solve() {
     dsu.unite(0, 4);
     dsu.unite(5, 6);
 
-    dbg(a, b, c, "hi", d, dsu);
+    ds::fenwick<int> t({5, 1, 3, 2, 6});
+    t.add(2, 10);
+
+    dbg(a, b, c, "hi", d, dsu, t);
 }
 
 signed main() {

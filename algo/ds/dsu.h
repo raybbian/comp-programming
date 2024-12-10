@@ -3,14 +3,14 @@
 
 namespace algo::ds {
 
-template <bool UNION_BY_SIZE = true, bool PATH_COMPRESSION = true>
+template <bool union_by_size = true, bool path_compression = true>
 struct dsu {
     dsu(int n) {
         e = std::vector<int>(n, -1);
     }
     int get(int x) {
         if (e[x] < 0) return x;
-        if (PATH_COMPRESSION) return e[x] = get(e[x]);
+        if (path_compression) return e[x] = get(e[x]);
         return get(e[x]);
     }
     bool is_same(int a, int b) {
@@ -22,7 +22,7 @@ struct dsu {
     bool unite(int x, int y) {
         x = get(x), y = get(y);
         if (x == y) return false;
-        if (UNION_BY_SIZE && e[x] > e[y]) std::swap(x, y);
+        if (union_by_size && e[x] > e[y]) std::swap(x, y);
         e[x] += e[y];
         e[y] = x;
         return true;
