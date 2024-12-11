@@ -1,7 +1,6 @@
 #pragma once
 #include "algo/common.h"
 #include "algo/math/common.h"
-#include "algo/math/primality.h"
 
 namespace algo::math {
 
