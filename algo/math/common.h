@@ -31,32 +31,21 @@ constexpr int64_t pow_mod_constexpr(int64_t x, int64_t n, int m) {
     return r;
 }
 
-// Fast modular multiplication by barrett reduction
-// Copied from:
-// https://github.com/atcoder/ac-library/blob/master/atcoder/internal_math.hpp
 struct barrett {
-    uint m;
-    uint64_t im;
-
-    explicit barrett(uint _m) : m(_m), im((uint64_t)(-1) / _m + 1) {
+    explicit barrett(uint64_t _m) : m(_m), im(-1ULL / _m) {
         assert(1 <= _m);
     }
-
-    uint umod() const {
+    uint64_t mod() {
         return m;
+    };
+    uint64_t reduce(uint64_t a) {
+        uint64_t q = (uint64_t)((__uint128_t(im) * a) >> 64);
+        uint64_t r = a - q * m;
+        return r - (r >= m) * m;
     }
 
-    // Returns a * b % m
-    uint mul(uint a, uint b) const {
-        assert(a < m);
-        assert(b < m);
-
-        uint64_t z = a;
-        z *= b;
-        uint64_t x = (uint64_t)(((__uint128_t)(z)*im) >> 64);
-        uint64_t y = x * m;
-        return (uint)(z - y + (z < y ? m : 0));
-    }
+private:
+    uint64_t m, im;
 };
 
 constexpr int64_t c_div(int64_t a, int64_t b) {
