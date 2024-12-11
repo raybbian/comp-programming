@@ -1,16 +1,7 @@
 #pragma once
 #include "algo/common.h"
+#include "algo/debug/preamble.h"
 
-template <typename T>
-concept printable = requires(T t) {
-    { std::cout << t } -> std::same_as<std::ostream &>;
-};
-template <typename T>
-concept iterable = std::ranges::range<T> && (!printable<T>);
-
-template <typename... T>
-inline void no_debug(T... args) {
-}
 template <size_t N>
 std::ostream &operator<<(std::ostream &os, const std::bitset<N> &v) {
     os << "<";
@@ -18,6 +9,28 @@ std::ostream &operator<<(std::ostream &os, const std::bitset<N> &v) {
         os << static_cast<char>('0' + v[i]);
     }
     return os << ">";
+}
+template <typename T, typename U>
+std::ostream &operator<<(std::ostream &os, std::queue<T, U> q) {
+    os << "[";
+    bool first = true;
+    for (; !q.empty(); q.pop()) {
+        if (!first) os << ", ";
+        first = false;
+        os << q.front();
+    }
+    return os << "]";
+}
+template <typename T, typename U, typename V>
+std::ostream &operator<<(std::ostream &os, std::priority_queue<T, U, V> pq) {
+    os << "[";
+    bool first = true;
+    for (; !pq.empty(); pq.pop()) {
+        if (!first) os << ", ";
+        first = false;
+        os << pq.top();
+    }
+    return os << "]";
 }
 template <typename T, typename U>
 std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &p) {

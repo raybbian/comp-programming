@@ -1,7 +1,10 @@
 #include "algo/common.h"
-#include "algo/debug.h"
+#include "algo/debug/preamble.h"
 
-/* #include */
+/* start include */
+/* end include */
+
+#include "algo/debug/debug.h"
 
 using namespace std;
 using namespace algo;
