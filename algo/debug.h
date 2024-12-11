@@ -8,10 +8,9 @@ concept printable = requires(T t) {
 template <typename T>
 concept iterable = std::ranges::range<T> && (!printable<T>);
 
-template <typename T = void>
-T noop() {
+template <typename... T>
+inline void no_debug(T... args) {
 }
-
 template <size_t N>
 std::ostream &operator<<(std::ostream &os, const std::bitset<N> &v) {
     os << "<";
@@ -67,3 +66,8 @@ void debug(std::string name, T var) {
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 
 #define DEBUG(x) debug(#x, x);
+#ifdef LOCAL
+#define dbg(...) FOR_EACH(DEBUG, __VA_ARGS__) no_debug()
+#else
+#define dbg(...) no_debug(__VA_ARGS__)
+#endif

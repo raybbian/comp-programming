@@ -2,13 +2,6 @@
 #define ALGO_MAXN 1e7
 #include "algo/common.h"
 
-#ifdef LOCAL
-#include "algo/debug/debug.h"
-#define dbg(...) FOR_EACH(DEBUG, __VA_ARGS__) noop()
-#else
-#define dbg(...) 42
-#endif
-
 /* #include */
 #include "algo/math/combo.h"
 #include "algo/math/modint.h"
