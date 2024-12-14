@@ -1,6 +1,8 @@
 **/a.out
 **/.cache
 
+compile_commands.json
+
 .idea
 submit.cpp
 
