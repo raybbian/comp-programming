@@ -55,11 +55,11 @@ struct combo {
 private:
     std::vector<T> f, inv_f;
 
-    static index_t mod() {
+    static int mod() {
         if constexpr (requires { T::mod(); }) {
             return T::mod();
         } else {
-            return std::numeric_limits<index_t>::max();
+            return std::numeric_limits<int>::max();
         }
     }
     // n! is 0 once n >= mod (mod divides it) and has no inverse, so neither
