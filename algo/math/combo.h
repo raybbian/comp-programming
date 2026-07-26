@@ -14,7 +14,7 @@ struct combo {
 
     T fact(index_t n) {
         if (n >= (index_t)f.size()) {
-            if (n >= mod()) return T(0);
+            assert(n < mod());
             if (f.empty()) f.push_back(T(1));
             index_t m = grow_to(n, (index_t)f.size());
             f.reserve(m);
@@ -26,7 +26,7 @@ struct combo {
     }
     T inv_fact(index_t n) {
         if (n >= (index_t)inv_f.size()) {
-            if (n >= mod()) return T(0);
+            assert(n < mod());
             if (inv_f.empty()) inv_f.push_back(T(1));
             index_t lo = (index_t)inv_f.size(), m = grow_to(n, lo);
             inv_f.resize(m);
