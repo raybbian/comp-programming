@@ -4,22 +4,30 @@
 
 namespace algo::math {
 
-bool is_prime_sieve(int n) {
-    assert(n < MAXN);
-    static std::vector<bool> F(MAXN, true);
-    static bool init = false;
-    if (!init) {
-        F[0] = F[1] = false;
-        for (int i = 2; i * i < MAXN; i++) {
-            if (F[i]) {
-                for (int j = i * i; j <= n; j += i) {
-                    F[j] = false;
+// Rebuilt on demand, doubling the bound each time it is outgrown.
+struct sieve {
+    explicit sieve(index_t n = 0) {
+        if (n > 0) is_prime(n);
+    }
+
+    bool is_prime(index_t n) {
+        if (n >= (index_t)f.size()) {
+            index_t m = std::max({n + 1, 2 * (index_t)f.size(), index_t(2)});
+            f.assign(m, true);
+            f[0] = f[1] = false;
+            for (index_t i = 2; i <= (m - 1) / i; i++) {
+                if (f[i]) {
+                    for (index_t j = i * i; j < m; j += i) {
+                        f[j] = false;
+                    }
                 }
             }
         }
-        init = true;
+        return f[n];
     }
-    return F[n];
-}
+
+private:
+    std::vector<bool> f;
+};
 
 } // namespace algo::math

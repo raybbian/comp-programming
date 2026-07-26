@@ -5,30 +5,30 @@ namespace algo::ds {
 
 template <typename T>
 struct fenwick {
-    fenwick(int _n) : n(_n), bit(n, 0) {
+    fenwick(index_t _n) : n(_n), bit(n, 0) {
     }
-    fenwick(const std::vector<T> &a) : fenwick(sz(a)) {
-        for (int i = 0; i < n; i++) {
+    fenwick(const std::vector<T> &a) : fenwick((index_t)a.size()) {
+        for (index_t i = 0; i < n; i++) {
             bit[i] += a[i];
-            int r = i | (i + 1);
+            index_t r = i | (i + 1);
             if (r < n) bit[r] += bit[i];
         }
     }
     // Inclusive on [l, r]
-    T sum(int l, int r) {
+    T sum(index_t l, index_t r) {
         return sum(r) - sum(l - 1);
     }
-    T val(int pos) {
+    T val(index_t pos) {
         return sum(pos, pos);
     }
-    void add(int idx, int delta) {
+    void add(index_t idx, T delta) {
         for (; idx < n; idx = idx | (idx + 1))
             bit[idx] += delta;
     }
     friend std::ostream &operator<<(std::ostream &os, fenwick f) {
         os << "[";
         bool first = true;
-        for (int i = 0; i < f.n; i++) {
+        for (index_t i = 0; i < f.n; i++) {
             if (!first) os << ", ";
             first = false;
             os << f.val(i);
@@ -38,9 +38,9 @@ struct fenwick {
     }
 
 private:
-    int n;
+    index_t n;
     std::vector<T> bit;
-    T sum(int r) {
+    T sum(index_t r) {
         T ret(0);
         for (; r >= 0; r = (r & (r + 1)) - 1)
             ret += bit[r];

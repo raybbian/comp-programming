@@ -9,6 +9,8 @@
 using namespace std;
 using namespace algo;
 
+// using mint = math::static_modint<998244353>;
+
 void solve() {
 }
 

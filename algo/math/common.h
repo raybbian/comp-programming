@@ -1,12 +1,6 @@
 #pragma once
 #include "algo/common.h"
 
-#ifdef ALGO_MAXN
-const int MAXN = ALGO_MAXN;
-#else
-const int MAXN = 1 << 19;
-#endif
-
 namespace algo::math {
 
 constexpr int64_t safe_mod(int64_t x, int64_t m) {
@@ -20,7 +14,7 @@ constexpr int64_t pow_mod_constexpr(int64_t x, int64_t n, int m) {
     assert(0 <= n);
     assert(1 <= m);
     if (m == 1) return 0;
-    uint _m = (uint)(m);
+    unsigned int _m = (unsigned int)(m);
     uint64_t r = 1;
     uint64_t y = safe_mod(x, m);
     while (n) {
@@ -32,13 +26,13 @@ constexpr int64_t pow_mod_constexpr(int64_t x, int64_t n, int m) {
 }
 
 struct barrett {
-    explicit barrett(uint64_t _m) : m(_m), im(-1ULL / _m) {
+    constexpr explicit barrett(uint64_t _m) : m(_m), im(-1ULL / _m) {
         assert(1 <= _m);
     }
-    uint64_t mod() {
+    uint64_t mod() const {
         return m;
     };
-    uint64_t reduce(uint64_t a) {
+    uint64_t reduce(uint64_t a) const {
         uint64_t q = (uint64_t)((__uint128_t(im) * a) >> 64);
         uint64_t r = a - q * m;
         return r - (r >= m) * m;

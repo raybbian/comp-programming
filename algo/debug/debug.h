@@ -63,6 +63,7 @@ std::ostream &operator<<(std::ostream &os, const T &t) {
 template <typename T>
 void debug(std::string name, T var) {
     std::cout << "\x1B[31m" << name << ": " << var << "\x1B[0m" << '\n';
+    std::cout.flush();
 }
 
 // https://www.scs.stanford.edu/~dm/blog/va-opt.html
