@@ -1,6 +1,5 @@
 #pragma once
 #include "algo/common.h"
-#include "algo/ds/common.h"
 #include "algo/utils/bits.h"
 
 namespace algo::ds {
@@ -9,13 +8,13 @@ template <typename T>
 struct sparse_table {
     // Must be constructed with idempotent function. Call init() after if using
     // this constructor.
-    sparse_table(index_t _n, const std::function<T(T, T)> &op = min<T>)
+    sparse_table(index_t _n, const std::function<T(T, T)> &op = min_op)
         : n(_n), k(utils::lg2(n)), op(op),
           st(std::max<index_t>(k + 1, 1), std::vector<T>(n)) {
     }
     // Must be constructed with idempotent function
     sparse_table(const std::vector<T> &a,
-                 const std::function<T(T, T)> &op = min<T>)
+                 const std::function<T(T, T)> &op = min_op)
         : sparse_table((index_t)a.size(), op) {
         init(a);
     }
@@ -39,6 +38,12 @@ struct sparse_table {
     }
 
 private:
+    // std::min names an overload set even when given an explicit argument, so
+    // it cannot bind to std::function. This names exactly one function.
+    static T min_op(T a, T b) {
+        return std::min(a, b);
+    }
+
     // k is the max level index and is -1 when n is 0, so the row count is
     // floored at 1 to keep level 0 present for init() to copy into.
     index_t n, k;
