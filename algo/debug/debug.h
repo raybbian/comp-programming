@@ -61,8 +61,12 @@ std::ostream &operator<<(std::ostream &os, const T &t) {
 }
 
 template <typename T>
-void debug(std::string name, T var) {
-    std::cout << "\x1B[31m" << name << ": " << var << "\x1B[0m" << '\n';
+void debug(std::string_view name, T var) {
+    std::cout << "\x1B[31m";
+    // # keeps the quotes on a literal, so dbg("hi") prints as a bare message
+    // while a const char* variable is still named.
+    if (!name.starts_with('"')) std::cout << name << ": ";
+    std::cout << var << "\x1B[0m" << '\n';
     std::cout.flush();
 }
 
