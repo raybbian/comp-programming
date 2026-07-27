@@ -4,17 +4,32 @@
 
 namespace algo::ds {
 
+// An op has to be a type here, and std::min and std::max name overload sets
+// rather than single functions, so wrap them.
 template <typename T>
+struct min_op {
+    T operator()(T a, T b) const {
+        return std::min(a, b);
+    }
+};
+
+template <typename T>
+struct max_op {
+    T operator()(T a, T b) const {
+        return std::max(a, b);
+    }
+};
+
+template <typename T, typename Op = min_op<T>>
 struct sparse_table {
     // Must be constructed with idempotent function. Call init() after if using
     // this constructor.
-    sparse_table(index_t _n, const std::function<T(T, T)> &op = min_op)
+    sparse_table(index_t _n, Op op = Op())
         : n(_n), k(utils::lg2(n)), op(op),
           st(std::max<index_t>(k + 1, 1), std::vector<T>(n)) {
     }
     // Must be constructed with idempotent function
-    sparse_table(const std::vector<T> &a,
-                 const std::function<T(T, T)> &op = min_op)
+    sparse_table(const std::vector<T> &a, Op op = Op())
         : sparse_table((index_t)a.size(), op) {
         init(a);
     }
@@ -38,16 +53,10 @@ struct sparse_table {
     }
 
 private:
-    // std::min names an overload set even when given an explicit argument, so
-    // it cannot bind to std::function. This names exactly one function.
-    static T min_op(T a, T b) {
-        return std::min(a, b);
-    }
-
     // k is the max level index and is -1 when n is 0, so the row count is
     // floored at 1 to keep level 0 present for init() to copy into.
     index_t n, k;
-    std::function<T(T, T)> op;
+    Op op;
     std::vector<std::vector<T>> st;
 };
 

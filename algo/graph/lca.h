@@ -8,11 +8,7 @@ namespace algo::graph {
 struct lca {
     // Note that adj must be a tree. Don't forget to set root!
     lca(const std::vector<std::vector<index_t>> &adj, index_t root = 0)
-        : n((index_t)adj.size()), height(n), first(n),
-          st(2 * n,
-             [&](index_t a, index_t b) {
-                 return height[a] < height[b] ? a : b;
-             }) {
+        : n((index_t)adj.size()), height(n), first(n), st(2 * n, {&height}) {
         euler.reserve(2 * n);
         dfs(root, root, 0, adj);
         st.init(euler);
@@ -25,9 +21,18 @@ struct lca {
     }
 
 private:
+    // The table is built before dfs fills height, so the op has to read it
+    // where it lives rather than close over a copy.
+    struct by_height {
+        const std::vector<index_t> *height;
+        index_t operator()(index_t a, index_t b) const {
+            return (*height)[a] < (*height)[b] ? a : b;
+        }
+    };
+
     index_t n;
     std::vector<index_t> height, euler, first;
-    ds::sparse_table<index_t> st;
+    ds::sparse_table<index_t, by_height> st;
 
     void dfs(index_t v, index_t p, index_t h,
              const std::vector<std::vector<index_t>> &adj) {
