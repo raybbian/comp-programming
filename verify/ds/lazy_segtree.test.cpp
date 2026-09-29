@@ -26,7 +26,7 @@ struct affine_sum {
     static Update composition(Update f, Update g) {
         return {f.first * g.first, f.first * g.second + f.second};
     }
-    static Value mapping(Update f, Value x, index_t len) {
+    static Value mapping(Update f, Value x, int len) {
         return f.first * x + f.second * len;
     }
 };

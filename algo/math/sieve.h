@@ -4,20 +4,22 @@
 
 namespace algo::math {
 
-// Rebuilt on demand, doubling the bound each time it is outgrown.
+// Prime lookup table. Rebuilt at least twice as large when n is out of range.
+//   sieve s(1e6);
+//   s.is_prime(n);
 struct sieve {
-    explicit sieve(index_t n = 0) {
+    explicit sieve(int n = 0) {
         if (n > 0) is_prime(n);
     }
 
-    bool is_prime(index_t n) {
-        if (n >= (index_t)f.size()) {
-            index_t m = std::max({n + 1, 2 * (index_t)f.size(), index_t(2)});
+    bool is_prime(int n) {
+        if (n >= (int)f.size()) {
+            int m = std::max({n + 1, 2 * (int)f.size(), 2});
             f.assign(m, true);
             f[0] = f[1] = false;
-            for (index_t i = 2; i <= (m - 1) / i; i++) {
+            for (int i = 2; i <= (m - 1) / i; i++) {
                 if (f[i]) {
-                    for (index_t j = i * i; j < m; j += i) {
+                    for (int j = i * i; j < m; j += i) {
                         f[j] = false;
                     }
                 }

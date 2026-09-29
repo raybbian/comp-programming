@@ -3,28 +3,16 @@
 
 namespace algo::math {
 
+// x mod m, in [0, m) even for negative x
 constexpr int64_t safe_mod(int64_t x, int64_t m) {
     x %= m;
     if (x < 0) x += m;
     return x;
 }
 
-// Returns (x ** n) % m
-constexpr int64_t pow_mod_constexpr(int64_t x, int64_t n, int m) {
-    assert(0 <= n);
-    assert(1 <= m);
-    if (m == 1) return 0;
-    unsigned int _m = (unsigned int)(m);
-    uint64_t r = 1;
-    uint64_t y = safe_mod(x, m);
-    while (n) {
-        if (n & 1) r = (r * y) % _m;
-        y = (y * y) % _m;
-        n >>= 1;
-    }
-    return r;
-}
-
+// Fast x % m for an m only known at run time.
+//   barrett b(m);
+//   b.reduce(x);  // x % m
 struct barrett {
     constexpr explicit barrett(uint64_t _m) : m(_m), im(-1ULL / _m) {
         assert(1 <= _m);
@@ -42,6 +30,7 @@ private:
     uint64_t m, im;
 };
 
+// Rounded-up and rounded-down a / b. Correct for negatives.
 constexpr int64_t c_div(int64_t a, int64_t b) {
     return a / b + ((a ^ b) > 0 && a % b);
 }
@@ -49,7 +38,10 @@ constexpr int64_t f_div(int64_t a, int64_t b) {
     return a / b - ((a ^ b) < 0 && a % b);
 }
 
-auto bpow(auto const &x, auto n, auto const &one, auto op) {
+// x^n by repeated squaring.
+//   bpow(mint(2), n);
+//   bpow(m, n, identity, mat_mul);  // any op, with its identity
+constexpr auto bpow(auto const &x, auto n, auto const &one, auto op) {
     if (n == 0) {
         return one;
     } else {
@@ -61,16 +53,26 @@ auto bpow(auto const &x, auto n, auto const &one, auto op) {
         return t;
     }
 }
-auto bpow(auto x, auto n, auto ans) {
+constexpr auto bpow(auto x, auto n, auto ans) {
     return bpow(x, n, ans, std::multiplies{});
 }
 template <typename T>
-T bpow(T const &x, auto n) {
+constexpr T bpow(T const &x, auto n) {
     return bpow(x, n, T(1));
 }
 
-// Returns a pair(g, x) s.t. g = gcd(a, n), xa = g (mod n), 0 <= x < n/g
-// If r > 1 then a is not invertible mod n
+// a * b mod m, without overflow
+constexpr uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
+    return (uint64_t)((__uint128_t)a * b % m);
+}
+// x^n mod m, without overflow
+constexpr uint64_t pow_mod(uint64_t x, uint64_t n, uint64_t m) {
+    return bpow(x % m, n, 1 % m,
+                [m](uint64_t a, uint64_t b) { return mul_mod(a, b, m); });
+}
+
+// Returns (g, x): g = gcd(a, n), x * a = g (mod n), 0 <= x < n / g.
+// If g == 1, x is the inverse of a mod n.
 constexpr std::pair<int64_t, int64_t> inv_gcd(int64_t a, int64_t n) {
     a = safe_mod(a, n);
     if (a == 0) return {n, 0};

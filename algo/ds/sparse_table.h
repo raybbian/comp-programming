@@ -4,8 +4,7 @@
 
 namespace algo::ds {
 
-// An op has to be a type here, and std::min and std::max name overload sets
-// rather than single functions, so wrap them.
+// std::min/std::max can't be passed as a type, so wrap them.
 template <typename T>
 struct min_op {
     T operator()(T a, T b) const {
@@ -20,42 +19,44 @@ struct max_op {
     }
 };
 
+// O(1) range query for ops where op(x, x) == x: min, max, gcd, ...
+// No updates. 0-indexed.
+//   sparse_table<int> st(a);               // min
+//   sparse_table<int, max_op<int>> st(a);  // max
+//   st.query(l, r);                        // op over a[l..r]
 template <typename T, typename Op = min_op<T>>
 struct sparse_table {
-    // Must be constructed with idempotent function. Call init() after if using
-    // this constructor.
-    sparse_table(index_t _n, Op op = Op())
+    // Allocates only. Call init(a) before querying.
+    sparse_table(int _n, Op op = Op())
         : n(_n), k(utils::lg2(n)), op(op),
-          st(std::max<index_t>(k + 1, 1), std::vector<T>(n)) {
+          st(std::max(k + 1, 1), std::vector<T>(n)) {
     }
-    // Must be constructed with idempotent function
     sparse_table(const std::vector<T> &a, Op op = Op())
-        : sparse_table((index_t)a.size(), op) {
+        : sparse_table((int)a.size(), op) {
         init(a);
     }
     void init(const std::vector<T> &a) {
-        assert((index_t)a.size() <= n);
+        assert((int)a.size() <= n);
         std::copy(a.begin(), a.end(), st[0].begin());
-        for (index_t i = 1; i <= k; i++) {
-            for (index_t j = 0; j + (index_t(1) << i) <= n; j++) {
+        for (int i = 1; i <= k; i++) {
+            for (int j = 0; j + (1 << i) <= n; j++) {
                 st[i][j] =
-                    op(st[i - 1][j], st[i - 1][j + (index_t(1) << (i - 1))]);
+                    op(st[i - 1][j], st[i - 1][j + (1 << (i - 1))]);
             }
         }
     }
-    // Queries on [l, r]
-    T query(index_t l, index_t r) {
-        index_t i = utils::lg2(r - l + 1);
-        return op(st[i][l], st[i][r - (index_t(1) << i) + 1]);
+    // op over a[l..r]
+    T query(int l, int r) {
+        int i = utils::lg2(r - l + 1);
+        return op(st[i][l], st[i][r - (1 << i) + 1]);
     }
     friend std::ostream &operator<<(std::ostream &os, const sparse_table &t) {
         return os << t.st[0];
     }
 
 private:
-    // k is the max level index and is -1 when n is 0, so the row count is
-    // floored at 1 to keep level 0 present for init() to copy into.
-    index_t n, k;
+    // k = floor(log2(n)), or -1 when n = 0. st keeps at least one row.
+    int n, k;
     Op op;
     std::vector<std::vector<T>> st;
 };

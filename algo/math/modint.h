@@ -4,8 +4,7 @@
 
 namespace algo::math {
 
-// A modulus fixed at compile time: no state, and the division folds into a
-// multiply-shift.
+// Modulus fixed at compile time.
 template <int Mod>
 struct static_mod {
     static constexpr int mod() {
@@ -16,9 +15,10 @@ struct static_mod {
     }
 };
 
-// A modulus known only at run time, held for the extent of with_mod. Nesting is
-// rejected: values built under the outer modulus would survive into the inner
-// one. Use a second id to hold two moduli at once.
+// Modulus set at run time, valid only inside with_mod. Calls can't nest; use
+// another id for a second modulus.
+//   using mint = dynamic_modint<>;
+//   mint::with_mod(m, [&] { ... });
 template <int id>
 struct dynamic_mod {
     static int mod() {
@@ -44,8 +44,11 @@ private:
     static inline bool armed = false;
 };
 
-// P supplies mod() and reduce(). Inheriting it makes both reachable through the
-// modint (as is with_mod), and an empty policy costs no space.
+// Integer mod P::mod(). P provides mod() and reduce(x) = x % mod.
+//   using mint = static_modint<998244353>;
+//   mint a = 5;
+//   a /= 3;
+//   int(a);
 template <typename P>
 struct modint : P {
     modint() : v(0) {

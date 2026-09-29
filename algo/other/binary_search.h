@@ -3,7 +3,7 @@
 
 namespace algo::search {
 
-// Finds argmax on [l, r]. Function must be strictly concave!
+// x in [l, r] maximizing f. f must be strictly concave.
 template <typename U>
 double argmax(double l, double r, U f, double eps = 1e-9) {
     while (r - l > eps) {
@@ -17,7 +17,7 @@ double argmax(double l, double r, U f, double eps = 1e-9) {
     return l;
 }
 
-// Finds argmin on [l, r]. Function must be strictly convex!
+// x in [l, r] minimizing f. f must be strictly convex.
 template <typename U>
 double argmin(double l, double r, U f, double eps = 1e-9) {
     while (r - l > eps) {
@@ -31,7 +31,9 @@ double argmin(double l, double r, U f, double eps = 1e-9) {
     return l;
 }
 
-// Returns l-1 if no values are true in range.
+// Last x in [l, r] with f(x) true, for f true...true false...false.
+// Returns l - 1 if none.
+//   last_true(0, n, [&](int x) { return x * x <= n; });  // floor(sqrt(n))
 template <typename T, typename U>
 T last_true(T l, T r, U f) {
     l--;
@@ -43,7 +45,9 @@ T last_true(T l, T r, U f) {
     return l;
 }
 
-// Returns r+1 if no values are true in range.
+// First x in [l, r] with f(x) true, for f false...false true...true.
+// Returns r + 1 if none.
+//   first_true(0, n, [&](int i) { return a[i] >= x; });  // lower_bound
 template <typename T, typename U>
 T first_true(T l, T r, U f) {
     r++;

@@ -3,6 +3,8 @@
 
 namespace algo::utils {
 
+// Nested vector. Sizes first, fill value last.
+//   auto dp = ndvec<int>(n, m, -1);  // n x m, all -1
 template <typename T>
 std::vector<T> ndvec(size_t size, T initial_value) {
     return std::vector<T>(size, initial_value);

@@ -3,22 +3,27 @@
 
 namespace algo::ds {
 
+// Disjoint set union.
+//   dsu d(n);
+//   d.unite(a, b);    // false if already joined
+//   d.is_same(a, b);
+//   d.size(a);        // size of a's set
 template <bool union_by_size = true, bool path_compression = true>
 struct dsu {
-    dsu(index_t n) : e(std::vector<index_t>(n, -1)) {
+    dsu(int n) : e(std::vector<int>(n, -1)) {
     }
-    index_t get(index_t x) {
+    int get(int x) {
         if (e[x] < 0) return x;
         if (path_compression) return e[x] = get(e[x]);
         return get(e[x]);
     }
-    bool is_same(index_t a, index_t b) {
+    bool is_same(int a, int b) {
         return get(a) == get(b);
     }
-    index_t size(index_t x) {
+    int size(int x) {
         return -e[get(x)];
     }
-    bool unite(index_t x, index_t y) {
+    bool unite(int x, int y) {
         x = get(x), y = get(y);
         if (x == y) return false;
         if (union_by_size && e[x] > e[y]) std::swap(x, y);
@@ -29,12 +34,12 @@ struct dsu {
     friend std::ostream &operator<<(std::ostream &os, dsu s) {
         os << "[";
         bool first = true;
-        for (index_t i = 0; i < (index_t)s.e.size(); i++) {
+        for (int i = 0; i < (int)s.e.size(); i++) {
             if (s.get(i) == i) {
                 if (!first) os << ", ";
                 first = false;
                 os << "[" << i;
-                for (index_t j = 0; j < (index_t)s.e.size(); j++) {
+                for (int j = 0; j < (int)s.e.size(); j++) {
                     if (j != i && s.get(j) == i) {
                         os << ", " << j;
                     }
@@ -46,9 +51,8 @@ struct dsu {
     }
 
 private:
-    // A root stores the negated size of its component, so this relies on
-    // index_t being signed.
-    std::vector<index_t> e;
+    // Root: -(set size). Otherwise: parent.
+    std::vector<int> e;
 };
 
 } // namespace algo::ds

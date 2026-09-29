@@ -8,13 +8,11 @@
 
 namespace algo::ds {
 
-/*
- * find_by_order(k) - returns iterator to kth largest element (0-indexed) or an
- * iterator to end if it doesn't exist
- *
- * order_of_key(x) - returns the number of elements in the set strictly smaller
- * than x
- */
+// std::set that can also look up by position.
+//   ordered_set<int> s;
+//   s.insert(x);
+//   *s.find_by_order(k);  // k-th smallest, 0-indexed (end() if none)
+//   s.order_of_key(x);    // number of elements < x
 template <typename T>
 using ordered_set =
     __gnu_pbds::tree<T, __gnu_pbds::null_type, std::less<T>,
