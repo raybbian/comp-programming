@@ -2,28 +2,34 @@
 #include "algo/common.h"
 
 template <typename T>
-concept printable = requires(T t) {
-    { std::cout << t } -> std::same_as<std::ostream &>;
-};
+concept string_like = std::convertible_to<const T &, std::string_view>;
 template <typename T>
-concept iterable = std::ranges::range<T> && (!printable<T>);
+concept iterable = std::ranges::range<T> && (!string_like<T>);
+template <typename T>
+concept iterator_like = std::input_iterator<T> && (!std::is_pointer_v<T>) &&
+                        (!std::ranges::range<T>);
 
-// Swallows dbg(...) arguments when LOCAL is off, without copying them.
 template <typename... T>
 inline void no_debug(const T &...) {
 }
 
-// Declared early so printers can call each other on nested types, e.g.
-// vector<pair<int, set<int>>>. Defined in debug.h.
 template <size_t N>
 std::ostream &operator<<(std::ostream &os, const std::bitset<N> &v);
 template <typename T, typename U>
 std::ostream &operator<<(std::ostream &os, std::queue<T, U> q);
+template <typename T, typename U>
+std::ostream &operator<<(std::ostream &os, std::stack<T, U> s);
 template <typename T, typename U, typename V>
 std::ostream &operator<<(std::ostream &os, std::priority_queue<T, U, V> pq);
 template <typename T, typename U>
 std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &p);
 template <typename... T>
 std::ostream &operator<<(std::ostream &os, const std::tuple<T...> &t);
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const std::optional<T> &o);
+std::ostream &operator<<(std::ostream &os, unsigned __int128 v);
+std::ostream &operator<<(std::ostream &os, __int128 v);
 template <iterable T>
 std::ostream &operator<<(std::ostream &os, const T &t);
+template <iterator_like T>
+std::ostream &operator<<(std::ostream &os, const T &it);

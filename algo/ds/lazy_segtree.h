@@ -4,8 +4,7 @@
 
 namespace algo::ds {
 
-// What a query combines. op(a, b) merges two values, e() is the empty value,
-// repeat(x, len) is op applied to len copies of x.
+// op combines, e() is empty, repeat(x, len) is x combined with itself len times.
 template <typename T>
 struct sum_monoid {
     using Value = T;
@@ -48,7 +47,7 @@ struct max_monoid {
     }
 };
 
-// Range add. Works with sum, min and max.
+// Range add.
 template <typename M>
 struct add_lazy : M {
     using Value = typename M::Value;
@@ -64,7 +63,7 @@ struct add_lazy : M {
     }
 };
 
-// Range assign. nullopt means nothing pending.
+// Range assign. nullopt = no update.
 template <typename M>
 struct assign_lazy : M {
     using Value = typename M::Value;
@@ -80,22 +79,27 @@ struct assign_lazy : M {
     }
 };
 
-// Range update, range query. 0-indexed, ranges inclusive.
-//   lazy_segtree<add_sum<int64_t>> t(a);  // aliases at bottom of file
+// Range update, range query. 0-indexed, inclusive.
+//   lazy_segtree<add_sum<int64_t>> t(a);  // aliases at bottom
 //   t.apply(l, r, 5);                     // a[l..r] += 5
 //   t.query(l, r);                        // a[l] + ... + a[r]
 //
-// A custom policy P provides:
-//   Value, op(a, b), e()        values and how they combine
-//   Update, id()                updates; id() does nothing
-//   composition(f, g)           one update equal to g then f
-//   mapping(f, x[, len])        f applied to x, a combined value of len cells
+// Custom policy (this one is add_sum):
+//   struct P {
+//       using Value = int64_t;
+//       using Update = int64_t;
+//       static Value op(Value a, Value b) { return a + b; }
+//       static Value e() { return 0; }
+//       static Update id() { return 0; }
+//       static Update composition(Update f, Update g) { return f + g; }  // g then f
+//       static Value mapping(Update f, Value x, int len) { return x + f * len; }  // len optional
+//   };
 template <typename P>
 struct lazy_segtree : P {
     using Value = typename P::Value;
     using Update = typename P::Update;
 
-    // Every cell starts as e(). For other starting values, pass a vector.
+    // Filled with e().
     lazy_segtree(int _n) : lazy_segtree(std::vector<Value>(_n, P::e())) {
     }
     lazy_segtree(const std::vector<Value> &a)
@@ -125,7 +129,7 @@ struct lazy_segtree : P {
         if (l > r) return P::e();
         l += sz, r += sz + 1;
         push_down(l, r);
-        // Separate left/right results keep order when op(a, b) != op(b, a).
+        // Keeps order for non-commutative op.
         Value ml = P::e(), mr = P::e();
         for (; l < r; l >>= 1, r >>= 1) {
             if (l & 1) ml = P::op(ml, d[l++]);
@@ -136,7 +140,7 @@ struct lazy_segtree : P {
     Value all() {
         return d[1];
     }
-    // Applies f to each of a[l..r]
+    // f on each of a[l..r]
     void apply(int l, int r, Update f) {
         assert(0 <= l && r < n);
         if (l > r) return;
@@ -152,8 +156,66 @@ struct lazy_segtree : P {
             if (((r0 >> i) << i) != r0) pull((r0 - 1) >> i);
         }
     }
+    // Largest r with g(query(l, r - 1)) true. Needs g(e()) and g monotone.
+    //   t.max_right(l, [&](auto v) { return v >= k; });  // min: first i >= l with a[i] < k, else n
+    template <typename G>
+    int max_right(int l, G g) {
+        assert(0 <= l && l <= n);
+        assert(g(P::e()));
+        if (l == n) return n;
+        l += sz;
+        push_down(l);
+        Value sm = P::e();
+        int len = 1;
+        do {
+            while (l % 2 == 0) l >>= 1, len <<= 1;
+            if (!g(P::op(sm, d[l]))) {
+                while (l < sz) {
+                    push(l, len >> 1);
+                    l = 2 * l, len >>= 1;
+                    if (g(P::op(sm, d[l]))) {
+                        sm = P::op(sm, d[l]);
+                        l++;
+                    }
+                }
+                return l - sz;
+            }
+            sm = P::op(sm, d[l]);
+            l++;
+        } while ((l & -l) != l);
+        return n;
+    }
+    // Smallest l with g(query(l, r)) true.
+    //   t.min_left(r, [&](auto v) { return v >= k; }) - 1;  // min: last i <= r with a[i] < k, else -1
+    template <typename G>
+    int min_left(int r, G g) {
+        assert(0 <= r && r < n);
+        assert(g(P::e()));
+        r += sz;
+        push_down(r);
+        r++;
+        Value sm = P::e();
+        int len = 1;
+        do {
+            r--;
+            while (r > 1 && (r % 2)) r >>= 1, len <<= 1;
+            if (!g(P::op(d[r], sm))) {
+                while (r < sz) {
+                    push(r, len >> 1);
+                    r = 2 * r + 1, len >>= 1;
+                    if (g(P::op(d[r], sm))) {
+                        sm = P::op(d[r], sm);
+                        r--;
+                    }
+                }
+                return r + 1 - sz;
+            }
+            sm = P::op(d[r], sm);
+        } while ((r & -r) != r);
+        return 0;
+    }
     friend std::ostream &operator<<(std::ostream &os, lazy_segtree t) {
-        // Push every pending update down to the leaves, parents first.
+        // Push everything to the leaves.
         for (int k = 1; k < t.sz; k++)
             t.push(k, t.sz >> (utils::lg2(k) + 1));
         os << "[";
@@ -167,8 +229,7 @@ struct lazy_segtree : P {
     }
 
 private:
-    // Node k has children 2k and 2k+1; leaves start at sz. d[k] is k's
-    // up-to-date value. lz[k] is still owed to k's children.
+    // Children of k are 2k, 2k+1; leaf i is sz + i. lz[k] is pending for k's children.
     int n, sz, lg;
     std::vector<Value> d;
     std::vector<Update> lz;
@@ -176,7 +237,7 @@ private:
     void pull(int k) {
         d[k] = P::op(d[2 * k], d[2 * k + 1]);
     }
-    // Apply f to node k, which covers len cells.
+    // f on node k, which covers len cells.
     void all_apply(int k, const Update &f, int len) {
         if constexpr (requires { P::mapping(f, d[k], len); }) {
             d[k] = P::mapping(f, d[k], len);
@@ -185,7 +246,7 @@ private:
         }
         if (k < sz) lz[k] = P::composition(f, lz[k]);
     }
-    // Hand lz[k] to k's children, each covering len cells.
+    // lz[k] to k's children, each covering len cells.
     void push(int k, int len) {
         all_apply(2 * k, lz[k], len);
         all_apply(2 * k + 1, lz[k], len);
@@ -196,8 +257,7 @@ private:
         for (int i = lg; i >= 1; i--)
             push(p >> i, 1 << (i - 1));
     }
-    // Push everything above the two ends of [l, r). Nodes fully inside the
-    // range are already up to date.
+    // Push everything above both ends of [l, r).
     void push_down(int l, int r) {
         for (int i = lg; i >= 1; i--) {
             if (((l >> i) << i) != l) push(l >> i, 1 << (i - 1));

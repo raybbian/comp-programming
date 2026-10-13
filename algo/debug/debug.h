@@ -21,6 +21,17 @@ std::ostream &operator<<(std::ostream &os, std::queue<T, U> q) {
     }
     return os << "]";
 }
+template <typename T, typename U>
+std::ostream &operator<<(std::ostream &os, std::stack<T, U> s) {
+    os << "[";
+    bool first = true;
+    for (; !s.empty(); s.pop()) {
+        if (!first) os << ", ";
+        first = false;
+        os << s.top();
+    }
+    return os << "]";
+}
 template <typename T, typename U, typename V>
 std::ostream &operator<<(std::ostream &os, std::priority_queue<T, U, V> pq) {
     os << "[";
@@ -48,6 +59,24 @@ std::ostream &operator<<(std::ostream &os, const std::tuple<T...> &t) {
     std::apply([&print](auto &&...args) { (print(args), ...); }, t);
     return os << ")";
 }
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const std::optional<T> &o) {
+    if (!o) return os << "nullopt";
+    return os << *o;
+}
+inline std::ostream &operator<<(std::ostream &os, unsigned __int128 v) {
+    std::string s;
+    do {
+        s += static_cast<char>('0' + v % 10);
+        v /= 10;
+    } while (v);
+    return os << std::string(s.rbegin(), s.rend());
+}
+inline std::ostream &operator<<(std::ostream &os, __int128 v) {
+    if (v < 0) os << '-';
+    return os << (v < 0 ? -static_cast<unsigned __int128>(v)
+                        : static_cast<unsigned __int128>(v));
+}
 template <iterable T>
 std::ostream &operator<<(std::ostream &os, const T &t) {
     os << "[";
@@ -58,6 +87,10 @@ std::ostream &operator<<(std::ostream &os, const T &t) {
         os << e;
     }
     return os << "]";
+}
+template <iterator_like T>
+std::ostream &operator<<(std::ostream &os, const T &it) {
+    return os << "->" << *it;
 }
 
 inline void debug() {
@@ -97,7 +130,7 @@ void debug(std::string_view name, const T &var, const Rest &...rest) {
              DBG_10, DBG_9, DBG_8, DBG_7, DBG_6, DBG_5, DBG_4, DBG_3, DBG_2,   \
              DBG_1)(__VA_ARGS__)
 
-// dbg(a, b) prints `a: ...` and `b: ...` in red. Does nothing without -DLOCAL.
+// dbg(a, b) prints `a: ...` and `b: ...` in red if compiled with -DLOCAL.
 #ifdef LOCAL
 #define dbg(...) debug(DBG_ARGS(__VA_ARGS__))
 #else

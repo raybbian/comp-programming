@@ -127,9 +127,9 @@ struct modint : P {
         return os << a.v;
     }
     friend std::istream &operator>>(std::istream &is, modint &a) {
-        is >> a.v;
-        a.v = (-P::mod() < a.v && a.v < P::mod()) ? a.v : a.v % P::mod();
-        if (a.v < 0) a.v += P::mod();
+        int64_t x;
+        is >> x;
+        a = modint(x);
         return is;
     }
 
