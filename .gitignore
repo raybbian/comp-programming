@@ -1,5 +1,9 @@
 **/a.out
+**/sol.out
+**/brute.out
+**/gen.out
 **/.cache
+stress/
 
 compile_commands.json
 
