@@ -1,51 +1,9 @@
 #pragma once
 #include "algo/common.h"
+#include "algo/ds/monoid.h"
 #include "algo/utils/bits.h"
 
 namespace algo::ds {
-
-// op combines, e() is empty, repeat(x, len) is x combined with itself len times.
-template <typename T>
-struct sum_monoid {
-    using Value = T;
-    static Value op(Value a, Value b) {
-        return a + b;
-    }
-    static Value e() {
-        return Value(0);
-    }
-    static Value repeat(Value x, int len) {
-        return x * len;
-    }
-};
-
-template <typename T>
-struct min_monoid {
-    using Value = T;
-    static Value op(Value a, Value b) {
-        return std::min(a, b);
-    }
-    static Value e() {
-        return std::numeric_limits<Value>::max();
-    }
-    static Value repeat(Value x, int) {
-        return x;
-    }
-};
-
-template <typename T>
-struct max_monoid {
-    using Value = T;
-    static Value op(Value a, Value b) {
-        return std::max(a, b);
-    }
-    static Value e() {
-        return std::numeric_limits<Value>::lowest();
-    }
-    static Value repeat(Value x, int) {
-        return x;
-    }
-};
 
 // Range add.
 template <typename M>
@@ -58,7 +16,7 @@ struct add_lazy : M {
     static Update composition(Update f, Update g) {
         return f + g;
     }
-    static Value mapping(Update f, Value x, int len) {
+    static Value mapping(Update f, Value x, int64_t len) {
         return x + M::repeat(f, len);
     }
 };
@@ -74,7 +32,7 @@ struct assign_lazy : M {
     static Update composition(Update f, Update g) {
         return f ? f : g;
     }
-    static Value mapping(Update f, Value x, int len) {
+    static Value mapping(Update f, Value x, int64_t len) {
         return f ? M::repeat(*f, len) : x;
     }
 };
@@ -109,6 +67,11 @@ struct lazy_segtree : P {
         for (int i = sz - 1; i >= 1; i--)
             pull(i);
     }
+    // From raw values, when P builds its own leaves (see indexed).
+    template <typename U>
+        requires requires(U x, int i) { P::leaf(x, i); }
+    lazy_segtree(const std::vector<U> &a) : lazy_segtree(leaves(a)) {
+    }
     Value get(int p) {
         assert(0 <= p && p < n);
         p += sz;
@@ -122,6 +85,11 @@ struct lazy_segtree : P {
         d[p] = x;
         for (int i = 1; i <= lg; i++)
             pull(p >> i);
+    }
+    template <typename U>
+        requires requires(U x, int i) { P::leaf(x, i); }
+    void set(int p, const U &x) {
+        set(p, P::leaf(x, p));
     }
     // op over a[l..r]
     Value query(int l, int r) {
@@ -234,6 +202,13 @@ private:
     std::vector<Value> d;
     std::vector<Update> lz;
 
+    template <typename U>
+    static std::vector<Value> leaves(const std::vector<U> &a) {
+        std::vector<Value> ret(a.size());
+        for (int i = 0; i < (int)a.size(); i++)
+            ret[i] = P::leaf(a[i], i);
+        return ret;
+    }
     void pull(int k) {
         d[k] = P::op(d[2 * k], d[2 * k + 1]);
     }
