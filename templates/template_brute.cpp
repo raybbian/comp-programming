@@ -2,6 +2,7 @@
 #include "algo/debug/preamble.h"
 
 /* start include */
+#include "algo/brute/enumerate.h"
 /* end include */
 
 #include "algo/debug/debug.h"

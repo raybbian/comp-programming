@@ -1,13 +1,9 @@
-**/a.out
-**/sol.out
-**/brute.out
-**/gen.out
+out/
+/*.cpp
 **/.cache
-stress/
 
 compile_commands.json
 
 .idea
-submit.cpp
 
 .competitive-verifier
