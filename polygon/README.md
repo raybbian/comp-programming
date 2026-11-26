@@ -39,6 +39,10 @@ in the current folder. So inside a pulled folder you never name the problem.
 | `tests/<testset>/script.txt` | generator script |
 | `tests/<testset>/<index>.in` | manual tests; `<index>.statement.in/.out` override what the statement shows |
 
+Run `pg pull` with no arguments inside a pulled folder to refresh it. Pull overwrites local edits to
+files that also exist on Polygon, so commit the folder to git first. Files that exist only locally
+are kept and listed (`--clean` deletes them), because the next push would upload them.
+
 `pg push [DIR]` compares the folder with your working copy on Polygon and uploads only the differences.
 
 - Files on disk decide what exists: drop a file into `solutions/` and it is uploaded (tag `OK` unless
@@ -72,8 +76,8 @@ changed in the web UI are not noticed until an invocation exists.
 ## One command per API method
 
 `pg --help` lists the groups, `pg <group> --help` the verbs, and every verb's help shows the API
-method it calls. Flags are the API parameter names in kebab-case. A flag value `@path` is read from
-that file (`@-` is stdin).
+method it calls. Flags are the API parameter names in kebab-case and must be written in full. Any
+value of the form `@path` is read from that file (`@-` is stdin).
 
 ```
 pg info set --time-limit 2000 --memory-limit 512
@@ -117,6 +121,8 @@ These need the web UI, because the documented API has no method for them:
 ## Notes
 
 - Polygon compiles sources on upload, so a solution or generator that does not compile is rejected.
+- Polygon marks the working copy as modified even when you re-upload identical content. `pg push`
+  avoids that by uploading only what differs; the single-method commands do not.
 - Polygon rate-limits the API (HTTP 429). pg waits and retries on its own.
 - Requests that fail with a server error are retried, except the ones that are not safe to repeat
   (create, commit, build, issues, stress create/run).
@@ -131,4 +137,5 @@ info = pg.call("problem.info", problemId=pid)                         # JSON met
 source = pg.raw("problem.viewSolution", problemId=pid, name="a.cpp")  # file methods
 ```
 
-`methods.py` is the table of commands, `sync.py` implements pull/diff/push.
+`methods.py` is the table of commands, `sync.py` implements pull/diff/push. `python -m unittest test_pg`
+runs the offline tests (no network or credentials needed).

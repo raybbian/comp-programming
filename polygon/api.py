@@ -54,6 +54,27 @@ def _to_bytes(value):
     return str(value).encode("utf-8")
 
 
+def sign(method, pairs, secret, rand):
+    """apiSig for `pairs`, a list of (name, value) byte pairs that already includes apiKey and time."""
+    to_sign = (rand + b"/" + method.encode("utf-8") + b"?" + b"&".join(k + b"=" + v for k, v in sorted(pairs))
+               + b"#" + secret.encode("utf-8"))
+    return rand + hashlib.sha512(to_sign).hexdigest().encode("ascii")
+
+
+def _api_failure(data):
+    """The parsed body if it is exactly an API failure envelope, else None."""
+    if data[:1] != b"{" or len(data) > 1 << 20:
+        return None
+    try:
+        parsed = json.loads(data.decode("utf-8"))
+    except ValueError:
+        return None
+    if (isinstance(parsed, dict) and parsed.get("status") == "FAILED"
+            and set(parsed) <= {"status", "comment", "result"}):
+        return parsed
+    return None
+
+
 class Polygon:
     def __init__(self, key=None, secret=None, url=None, pin=None):
         env = _load_env()
@@ -81,11 +102,7 @@ class Polygon:
             pairs.append((b"pin", _to_bytes(self.pin)))
         pairs.append((b"apiKey", self.key.encode("utf-8")))
         pairs.append((b"time", str(int(time.time())).encode("ascii")))
-        pairs.sort()
-        rand = secrets.token_hex(3).encode("ascii")
-        to_sign = (rand + b"/" + method.encode("utf-8") + b"?" + b"&".join(k + b"=" + v for k, v in pairs)
-                   + b"#" + self.secret.encode("utf-8"))
-        pairs.append((b"apiSig", rand + hashlib.sha512(to_sign).hexdigest().encode("ascii")))
+        pairs.append((b"apiSig", sign(method, pairs, self.secret, secrets.token_hex(3).encode("ascii"))))
 
         boundary = uuid.uuid4().hex.encode("ascii")
         body = b"".join(
@@ -129,13 +146,9 @@ class Polygon:
             break
         if status != 200:
             self._raise(method, data, status)
-        if data[:1] == b"{" and b'"status"' in data[:200]:
-            try:
-                parsed = json.loads(data.decode("utf-8"))
-            except ValueError:
-                return data
-            if parsed.get("status") == "FAILED":
-                raise PolygonError(method, parsed.get("comment"), parsed.get("result"))
+        failure = _api_failure(data)
+        if failure:
+            raise PolygonError(method, failure.get("comment"), failure.get("result"))
         return data
 
     def call(self, method, **params):

@@ -79,9 +79,45 @@ def same(a, b):
 
 def load_cache(root):
     try:
-        return json.load(open(os.path.join(root, CACHE), encoding="utf-8"))
+        with open(os.path.join(root, CACHE), encoding="utf-8") as f:
+            return json.load(f)
     except (OSError, ValueError):
         return {}
+
+
+def load_manifest(root):
+    path = os.path.join(root, MANIFEST)
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_manifest(root, manifest):
+    with open(os.path.join(root, MANIFEST), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
+def local_only(local, remote):
+    """Paths (relative to the folder) of files that exist locally but not in `remote`."""
+    out = []
+    out += [f"solutions/{n}" for n in local["solutions"] if n not in remote["solutions"]]
+    for t in FILE_TYPES:
+        out += [f"files/{t}/{n}" for n in local["files"][t] if n not in remote["files"][t]]
+    out += [f"statements/resources/{n}" for n in local["resources"] if n not in remote["resources"]]
+    for lang, s in local["statements"].items():
+        have = remote["statements"].get(lang, {"fields": {}})["fields"]
+        out += [f"statements/{lang}/{f}.tex" for f in s["fields"] if f not in have]
+    for ts, entry in local["testsets"].items():
+        have = remote["testsets"].get(ts, {"tests": {}})["tests"]
+        for i, t in sorted(entry["tests"].items()):
+            if t.get("manual") and not have.get(i, {}).get("manual"):
+                out.append(f"tests/{ts}/{i}.in")
+            for key, suffix in (("inputForStatement", "statement.in"), ("outputForStatement", "statement.out")):
+                if t.get(key) and not have.get(i, {}).get(key):
+                    out.append(f"tests/{ts}/{i}.{suffix}")
+    return out
 
 
 def save_cache(root, cache):
@@ -188,7 +224,7 @@ def snapshot(api, pid, testsets=("tests",), log=lambda s: None, cache=None):
                                  else (t.get("input") or "").encode("utf-8"))
             for k in ("group", "points", "description", "useInStatements", "inputForStatement", "outputForStatement",
                       "interactionLogForStatement", "verifyInputOutputForStatements"):
-                if t.get(k) not in (None, "", False):
+                if t.get(k) is not None and t[k] != "" and t[k] is not False:
                     meta[k] = t[k]
             if "points" in t:
                 st["pointsEnabled"] = True
@@ -271,11 +307,8 @@ def write(st, root):
             tests[str(i)] = meta
         manifest["testsets"][ts] = {"groupsEnabled": entry["groupsEnabled"], "groups": entry["groups"],
                                     "tests": tests}
-    path = os.path.join(root, MANIFEST)
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    return path
+    save_manifest(root, manifest)
+    return os.path.join(root, MANIFEST)
 
 
 def _ls(path):
@@ -289,8 +322,7 @@ def _read(path):
 
 def read(root):
     """Load a folder as a state. Files on disk decide what exists; problem.json supplies the rest."""
-    path = os.path.join(root, MANIFEST)
-    manifest = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
+    manifest = load_manifest(root)
     st = empty_state()
     for k in ("polygon", "info", "checker", "validator", "interactor", "tags", "description", "generalTutorial",
               "pointsEnabled", "materials"):
@@ -429,9 +461,10 @@ def plan(api, pid, local, remote, prune=False):
         for field, value in s["fields"].items():
             if field not in r["fields"] or text(r["fields"][field]) != text(value):
                 kw[field] = text(value)
-        for field in r["fields"]:
-            if field not in s["fields"] and field != "scoring":
-                kw[field] = ""
+        if prune:
+            for field in r["fields"]:
+                if field not in s["fields"] and field != "scoring":
+                    kw[field] = ""
         if kw or lang not in remote["statements"]:
             op(f"statement {lang}: " + (", ".join(sorted(kw)) or "create"), "problem.saveStatement", lang=lang, **kw)
     for name, data in local["resources"].items():
@@ -537,8 +570,10 @@ def plan(api, pid, local, remote, prune=False):
         if have != s:
             kw = {k: (",".join(v) if isinstance(v, list) else v) for k, v in s.items() if k in STRESS_KEYS}
             if have:
-                kw["stressIndex"] = i
-            op(f"{'update' if have else 'create'} stress {i}: {s.get('scriptPattern')}", "problem.saveStress", **kw)
+                op(f"update stress {i}: {s.get('scriptPattern')}", "problem.saveStress", stressIndex=i, **kw)
+            else:
+                ops.append((f"create stress {i}: {s.get('scriptPattern')}",
+                            lambda i=i, kw=kw: _create_stress(api, P, i, kw)))
     for name, m in local["materials"].items():
         if remote["materials"].get(name) != m:
             op(f"material {name}", "problem.setMaterial", name=name, publishStrategy=m.get("publishStrategy"),
@@ -551,6 +586,13 @@ def plan(api, pid, local, remote, prune=False):
             if name not in local["materials"]:
                 op(f"remove material {name}", "problem.setMaterial", name=name, remove=True)
     return ops
+
+
+def _create_stress(api, P, wanted, kw):
+    created = api.call("problem.saveStress", **P, **kw)
+    if created and created.get("index") != wanted:
+        raise PolygonError("problem.saveStress", f"created as stress {created.get('index')}, but problem.json "
+                           f"calls it {wanted}; renumber it there or the next push creates it again")
 
 
 def _vt(t):

@@ -96,9 +96,7 @@ def write_out(data, args, default_name=None):
 def problem_id(api, args, folder="."):
     ref = getattr(args, "problem", None) or os.environ.get("POLYGON_PROBLEM")
     if not ref:
-        path = os.path.join(folder, sync.MANIFEST)
-        if os.path.exists(path):
-            ref = (json.load(open(path, encoding="utf-8")).get("polygon") or {}).get("id")
+        ref = (sync.load_manifest(folder).get("polygon") or {}).get("id")
     if not ref:
         raise SystemExit("no problem given: use -p ID|NAME, set POLYGON_PROBLEM, or run inside a pulled folder")
     return api.resolve(ref)
@@ -114,7 +112,7 @@ def run_method(args):
     for p in spec:
         v = values.get(p["name"])
         if p["positional"]:
-            v = read_path(v) if p["file"] else v
+            v = read_path(v) if p["file"] else read_arg(v)
         elif p["basename_of"]:
             v = v or os.path.basename(values[p["basename_of"]])
         elif not p["bool"]:
@@ -138,9 +136,8 @@ def cmd_api(args):
         if "=" not in item:
             raise SystemExit(f"expected key=value, got {item!r}")
         k, v = item.split("=", 1)
-        v = read_arg(v)
-        params[k] = [params[k], v] if k in params and not isinstance(params[k], list) else \
-            params[k] + [v] if k in params else v
+        params.setdefault(k, []).append(read_arg(v))
+    params = {k: (v[0] if len(v) == 1 else v) for k, v in params.items()}
     needs_problem = args.method.startswith("problem.") and args.method != "problem.create"
     if needs_problem and "problemId" not in params:
         params["problemId"] = problem_id(api, args)
@@ -154,10 +151,17 @@ def cmd_pull(args):
     api = Polygon(pin=args.pin)
     pid = api.resolve(args.problem_ref) if args.problem_ref else problem_id(api, args, args.dir or ".")
     st = sync.snapshot(api, pid, args.testset or ["tests"], log=lambda s: print("  reading", s))
-    folder = args.dir or st["polygon"].get("name") or str(pid)
+    in_place = not args.problem_ref and not args.dir and os.path.exists(sync.MANIFEST)
+    folder = "." if in_place else args.dir or st["polygon"].get("name") or str(pid)
+    existing = sync.read(folder) if os.path.exists(os.path.join(folder, sync.MANIFEST)) else None
+    if existing and (existing["polygon"] or {}).get("id") not in (None, pid) and not args.force:
+        raise SystemExit(f"{folder} holds problem {existing['polygon'].get('id')}, not {pid}; "
+                         "pull into another folder or pass --force")
     if not st["extraTagsKnown"]:
         # Polygon exposes per-group/testset solution tags only through a stored invocation.
-        known = sync.load_cache(folder).get("_extraTags") or extra_tags(sync.read(folder))             if os.path.exists(os.path.join(folder, sync.MANIFEST)) else {}
+        known = {}
+        if existing:
+            known = load_cache(folder, pid).get("_extraTags") or extra_tags(existing)
         for name, tags in known.items():
             if name in st["solutions"]:
                 st["solutions"][name].update(tags)
@@ -165,7 +169,14 @@ def cmd_pull(args):
               + ("; kept the ones already in this folder" if known else ""))
     sync.write(st, folder)
     st["_cache"]["_extraTags"] = extra_tags(st)
-    sync.save_cache(folder, st["_cache"])
+    save_cache(folder, pid, st["_cache"])
+    stale = sync.local_only(existing, st) if existing else []
+    for rel in stale:
+        if args.clean:
+            os.remove(os.path.join(folder, rel))
+    if stale:
+        print(("  removed" if args.clean else "  only in this folder, not on Polygon (push would upload them; "
+               "pull --clean removes them)") + ": " + ", ".join(stale))
     print(f"pulled problem {pid} ({st['polygon'].get('name')}, revision {st['polygon'].get('revision')}) "
           f"into {os.path.abspath(folder)}")
     print(f"  {len(st['solutions'])} solutions, {sum(len(v) for v in st['files'].values())} files, "
@@ -183,26 +194,23 @@ def cmd_push(args):
         created = api.call("problem.create", name=args.create)
         pid = created["id"]
         print(f"created problem {pid} ({created['name']})")
-        path = os.path.join(folder, sync.MANIFEST)
-        manifest = json.load(open(path, encoding="utf-8"))
+        manifest = sync.load_manifest(folder)
         manifest["polygon"] = {"id": pid, "name": created["name"], "owner": created.get("owner")}
-        with open(path, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(manifest, f, indent=2, ensure_ascii=False)
-            f.write("\n")
+        sync.save_manifest(folder, manifest)
     else:
         pid = problem_id(api, args, folder)
     testsets = list(local["testsets"]) or ["tests"]
     if getattr(args, "force", False):
         remote = sync.empty_state()
     else:
-        cache = sync.load_cache(folder)
+        cache = load_cache(folder, pid)
         remote = sync.snapshot(api, pid, testsets, cache=cache)
         # Last known per-group solution tags: what this folder pushed or pulled, else the newest invocation.
         if "_extraTags" in cache:
             for name, s in remote["solutions"].items():
                 s.update(cache["_extraTags"].get(name, {"groupTags": {}, "testsetTags": {}}))
         remote["_cache"]["_extraTags"] = extra_tags(remote)
-        sync.save_cache(folder, remote["_cache"])
+        save_cache(folder, pid, remote["_cache"])
     for ts in testsets:
         remote["testsets"].setdefault(ts, {"groupsEnabled": False, "groups": {}, "script": "", "tests": {}})
     ops = sync.plan(api, pid, local, remote, prune=args.prune)
@@ -226,12 +234,23 @@ def cmd_push(args):
         raise SystemExit(f"{failed} of {len(ops)} changes failed; nothing was committed")
     if not getattr(args, "force", False):
         remote["_cache"]["_extraTags"] = extra_tags(local)
-        sync.save_cache(folder, remote["_cache"])
+        save_cache(folder, pid, remote["_cache"])
     if ops and args.commit:
         print(" ", api.call("problem.commitChanges", problemId=pid, minorChanges=not args.notify,
                             message=args.message or "Update through the API")["message"])
     elif ops:
         print(f"{len(ops)} changes are in your working copy; run `pg commit -m ...` to commit them")
+
+
+def load_cache(folder, pid):
+    """The folder's cache, unless it was written for another problem."""
+    cache = sync.load_cache(folder)
+    return cache if cache.get("_problem") == pid else {}
+
+
+def save_cache(folder, pid, cache):
+    cache["_problem"] = pid
+    sync.save_cache(folder, cache)
 
 
 def extra_tags(state):
@@ -433,7 +452,7 @@ class Tree:
                 group = self._subs(parts[:depth - 1]).add_parser(parts[depth - 1], help=f"{parts[depth - 1]} commands")
                 self.nodes[parts[:depth]] = (group, None)
         leaf = self._subs(parts[:-1]).add_parser(parts[-1], help=help_text, description=help_text,
-                                                 parents=[self.common])
+                                                 parents=[self.common], allow_abbrev=False)
         self.nodes[parts] = (leaf, None)
         return leaf
 
@@ -446,7 +465,7 @@ def build_parser():
                         help="write the downloaded file (or rendered files) here")
     common.add_argument("--pin", default=argparse.SUPPRESS, help="pin code of the problem or contest")
 
-    parser = argparse.ArgumentParser(prog="pg", description=__doc__,
+    parser = argparse.ArgumentParser(prog="pg", description=__doc__, allow_abbrev=False,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-p", "--problem", help="problem id or name")
     parser.add_argument("--json", action="store_true", help="print raw JSON instead of tables")
@@ -464,7 +483,8 @@ def build_parser():
                 leaf.add_argument("--" + kebab(p["name"]), dest=p["name"], action=argparse.BooleanOptionalAction,
                                   default=p["default"])
             else:
-                leaf.add_argument("--" + kebab(p["name"]), dest=p["name"], default=p["default"],
+                flags = ["--" + kebab(p["name"])] + (["-m"] if p["name"] == "message" else [])
+                leaf.add_argument(*flags, dest=p["name"], default=p["default"],
                                   help="default: base name of FILE" if p["basename_of"] else
                                   (f"default: {p['default']}" if p["default"] else "VALUE or @file"))
         leaf.set_defaults(func=run_method, _method=method, _spec=spec, _kind=kind, _fixed=fixed)
@@ -479,6 +499,8 @@ def build_parser():
     c.add_argument("problem_ref", nargs="?", metavar="PROBLEM", help="id or name (default: -p / problem.json)")
     c.add_argument("dir", nargs="?")
     c.add_argument("--testset", action="append", help="testset to mirror (repeatable, default: tests)")
+    c.add_argument("--clean", action="store_true", help="delete local files that are not on Polygon")
+    c.add_argument("--force", action="store_true", help="overwrite a folder that holds another problem")
     c.set_defaults(func=cmd_pull)
 
     for name, func, text in (("push", cmd_push, "upload what differs between a pulled folder and Polygon"),

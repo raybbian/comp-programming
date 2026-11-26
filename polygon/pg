@@ -1,2 +1,4 @@
 #!/bin/sh
-exec python "$(dirname "$0")/pg.py" "$@"
+# Windows ships a python3 stub that only opens the Store, so prefer `python` when it exists.
+if command -v python >/dev/null 2>&1; then exec python "$(dirname "$0")/pg.py" "$@"; fi
+exec python3 "$(dirname "$0")/pg.py" "$@"
